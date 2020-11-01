@@ -1,0 +1,27 @@
+{
+  "name": "rgti_webgl",
+  "version": "1.0.0",
+  "description": "Source code for WebGL version of the game Balls to the Holes for Computer graphics course 20/21",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NejcHirci/RGTI_WebGL.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NejcHirci/RGTI_WebGL/issues"
+  },
+  "homepage": "https://github.com/NejcHirci/RGTI_WebGL#readme",
+  "dependencies": {
+    "alea": "^1.0.0",
+    "simplex-noise": "^2.4.0"
+  }
+}
