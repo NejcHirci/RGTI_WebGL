@@ -25,6 +25,7 @@ export default class Renderer {
     prepare(scene) {
         scene.nodes.forEach(node => {
             node.gl = {};
+            console.log(node);
             if (node.mesh) {
                 Object.assign(node.gl, this.createModel(node.mesh));
             }
@@ -72,7 +73,7 @@ export default class Renderer {
                     gl.activeTexture(gl.TEXTURE0);
                     gl.bindTexture(gl.TEXTURE_2D, node.gl.texture);
                     gl.uniform1i(program.uniforms.uTexture, 0);
-                    gl.drawElements(gl.LINES, node.gl.indices, gl.UNSIGNED_SHORT, 0);
+                    gl.drawElements(gl.TRIANGLES, node.gl.indices, gl.UNSIGNED_SHORT, 0);
                 }
             },
             node => {
@@ -111,11 +112,21 @@ export default class Renderer {
 
     createTexture(texture) {
         const gl = this.gl;
-        return WebGL.createTexture(gl, {
-            image : texture,
-            min   : gl.NEAREST,
-            mag   : gl.NEAREST
-        });
+        if (texture instanceof Image) {
+            return WebGL.createTexture(gl, {
+                image: texture,
+                min: gl.NEAREST,
+                mag: gl.NEAREST
+            });
+        } else {
+            return WebGL.createTexture(gl, {
+                data: texture.data,
+                width: texture.width,
+                height: texture.height,
+                min: gl.NEAREST,
+                mag: gl.NEAREST
+            });
+        }
     }
 
 }

@@ -73,7 +73,6 @@ export function createTexture(gl, options) {
             target, 0, iformat,
             format, type, options.image);
     } else {
-        // if options.data == null, just allocate
         gl.texImage2D(
             target, 0, iformat,
             options.width, options.height, 0,

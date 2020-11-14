@@ -64,7 +64,7 @@ void main() {
 
     vec3 light = (ambient + diffuse + specular);
 
-    oColor = vec4(0.5,0.5,0,1) * vec4(light, 1) * vec4(1.2,1.2,1.2,1);
+    oColor = vec4(vTexCoord, 0, 1);
 }
 `;
 

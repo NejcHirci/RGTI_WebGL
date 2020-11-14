@@ -29,8 +29,11 @@ class App extends Application {
         const scene = await new SceneLoader().loadScene(uri);
         this.terrainGenerator = new TerrainGenerator(241, 60, 5, 0.2, 2, 20);
         const seed = 42;
-        const terrainMesh = this.terrainGenerator.generateMesh(this.terrainGenerator.generateNoiseMap(seed));
-        scene.meshes.push(terrainMesh);
+
+        const heightMap = this.terrainGenerator.generateNoiseMap(seed);
+        scene.meshes.push(this.terrainGenerator.generateMesh(heightMap));
+        scene.textures.push(this.terrainGenerator.generateTexture(heightMap));
+
         const builder = new SceneBuilder(scene);
         this.scene = builder.build();
         this.physics = new Physics(this.scene);
@@ -43,7 +46,6 @@ class App extends Application {
             }
         });
 
-        console.log(this.scene)
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
         this.renderer.prepare(this.scene);
@@ -101,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('canvas');
     const app = new App(canvas);
     const gui = new dat.GUI();
-    console.log(app.light);
     gui.addColor(app.light, 'ambientColor');
     gui.addColor(app.light, 'diffuseColor');
     gui.addColor(app.light, 'specularColor');

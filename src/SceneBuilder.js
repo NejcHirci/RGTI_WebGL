@@ -21,7 +21,7 @@ export default class SceneBuilder {
                 const texture = this.spec.textures[spec.texture];
                 return new Model(mesh, texture, spec);
             }
-            case 'light': return new Light();
+            case 'light': return new Light(spec);
             default: return new Node(spec);
         }
     }
