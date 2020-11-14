@@ -5,6 +5,7 @@ import Model from './Model.js';
 import Camera from './Camera.js';
 
 import Scene from './Scene.js';
+import Light from "./Light.js";
 
 export default class SceneBuilder {
 
@@ -20,6 +21,7 @@ export default class SceneBuilder {
                 const texture = this.spec.textures[spec.texture];
                 return new Model(mesh, texture, spec);
             }
+            case 'light': return new Light();
             default: return new Node(spec);
         }
     }

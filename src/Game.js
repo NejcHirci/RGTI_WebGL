@@ -6,6 +6,7 @@ import Camera from './Camera.js';
 import SceneLoader from './SceneLoader.js';
 import SceneBuilder from './SceneBuilder.js';
 import TerrainGenerator from "./TerrainGenerator.js";
+import Light from "./Light.js";
 
 class App extends Application {
 
@@ -16,6 +17,7 @@ class App extends Application {
         this.time = Date.now();
         this.startTime = this.time;
         this.aspect = 1;
+        this.light = new Light();
 
         this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
         document.addEventListener('pointerlockchange', this.pointerlockchangeHandler);
@@ -25,9 +27,9 @@ class App extends Application {
 
     async load(uri) {
         const scene = await new SceneLoader().loadScene(uri);
-        const terrainGenerator = new TerrainGenerator(241, 120, 5, 0.2, 2);
+        this.terrainGenerator = new TerrainGenerator(241, 60, 5, 0.2, 2, 20);
         const seed = 42;
-        const terrainMesh = terrainGenerator.generateMesh(terrainGenerator.generateNoiseMap(seed));
+        const terrainMesh = this.terrainGenerator.generateMesh(this.terrainGenerator.generateNoiseMap(seed));
         scene.meshes.push(terrainMesh);
         const builder = new SceneBuilder(scene);
         this.scene = builder.build();
@@ -79,7 +81,7 @@ class App extends Application {
 
     render() {
         if (this.scene) {
-            this.renderer.render(this.scene, this.camera);
+            this.renderer.render(this.scene, this.camera, this.light);
         }
     }
 
@@ -99,5 +101,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('canvas');
     const app = new App(canvas);
     const gui = new dat.GUI();
+    console.log(app.light);
+    gui.addColor(app.light, 'ambientColor');
+    gui.addColor(app.light, 'diffuseColor');
+    gui.addColor(app.light, 'specularColor');
+    gui.add(app.light, 'shininess', 0.0, 1000.0);
+    for (let i = 0; i < 3; i++) {
+        gui.add(app.light.position, i, -50.0, 50.0).name('position.' + String.fromCharCode('x'.charCodeAt(0) + i));
+    }
     gui.add(app, 'enableCamera');
 });

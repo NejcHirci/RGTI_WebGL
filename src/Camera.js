@@ -31,6 +31,10 @@ export default class Camera extends Node {
         const right = vec3.set(vec3.create(),
             Math.cos(c.rotation[1]), 0, -Math.sin(c.rotation[1]));
 
+        const up = vec3.create();
+        vec3.cross(up, forward, right);
+        vec3.normalize(up, up);
+
         // 1: add movement acceleration
         let acc = vec3.create();
         if (this.keys['KeyW']) {
@@ -45,6 +49,12 @@ export default class Camera extends Node {
         if (this.keys['KeyA']) {
             vec3.sub(acc, acc, right);
         }
+        if (this.keys['KeyQ']) {
+            vec3.add(acc, acc, up);
+        }
+        if (this.keys['KeyE']) {
+            vec3.sub(acc, acc, up);
+        }
 
         // 2: update velocity
         vec3.scaleAndAdd(c.velocity, c.velocity, acc, dt * c.acceleration);
@@ -53,7 +63,9 @@ export default class Camera extends Node {
         if (!this.keys['KeyW'] &&
             !this.keys['KeyS'] &&
             !this.keys['KeyD'] &&
-            !this.keys['KeyA'])
+            !this.keys['KeyA'] &&
+            !this.keys['KeyQ'] &&
+            !this.keys['KeyE'])
         {
             vec3.scale(c.velocity, c.velocity, 1 - c.friction);
         }
@@ -120,7 +132,7 @@ Camera.defaults = {
     far              : 100,
     velocity         : [0, 0, 0],
     mouseSensitivity : 0.002,
-    maxSpeed         : 3,
+    maxSpeed         : 10,
     friction         : 0.2,
     acceleration     : 20
 };
