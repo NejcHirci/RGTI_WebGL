@@ -137,8 +137,8 @@ export default class TerrainGenerator {
         let vertInd = 0;
         for (let y=0; y < this.mapSize; y++) {
             for (let x=0; x < this.mapSize; x++) {
-                mesh.vertices.push(topLeftX + x, 0, topLeftZ -y);
-                mesh.texcoords.push(x / this.mapSize, -y / this.mapSize);
+                mesh.vertices.push(topLeftX + x, noiseMap[y][x] * this.heightMult, topLeftZ -y);
+                mesh.texcoords.push(x / this.mapSize, y / this.mapSize);
                 mesh.normals.push(0, 0, 0);
 
                 if (x < this.mapSize - 1 && y < this.mapSize -1) {
@@ -188,9 +188,9 @@ export default class TerrainGenerator {
         for (let i=0; i < mesh.vertices.length - 2; i+=3) {
             let n = vec3.fromValues(mesh.normals[i], mesh.normals[i+1], mesh.normals[i+2]);
             vec3.normalize(n, n);
-            mesh.normals[i] = -n[0];
-            mesh.normals[i+1] = -n[1];
-            mesh.normals[i+2] = -n[2];
+            mesh.normals[i] = n[0];
+            mesh.normals[i+1] = n[1];
+            mesh.normals[i+2] = n[2];
         }
 
         return mesh;

@@ -63,6 +63,12 @@ export default class Renderer {
         gl.uniform3fv(program.uniforms.uLightPosition, light.position);
         gl.uniform3fv(program.uniforms.uLightAttenuation, light.attenuatuion);
 
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
         scene.traverse(
             node => {
                 matrixStack.push(mat4.clone(matrix));
@@ -94,6 +100,7 @@ export default class Renderer {
         gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        console.log(model.texcoords);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.texcoords), gl.STATIC_DRAW);
         gl.enableVertexAttribArray(1);
         gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
