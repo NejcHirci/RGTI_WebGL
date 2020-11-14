@@ -1,3 +1,5 @@
+import Mesh from "./Mesh.js";
+
 const vec3 = glMatrix.vec3;
 const vec2 = glMatrix.vec2;
 /**
@@ -7,37 +9,38 @@ const vec2 = glMatrix.vec2;
  */
 export default class TerrainGenerator {
     /**
-     * @param mapWidth - width of the generated Mesh
-     * @param mapHeight - height of the generated Mesh
+     * @param mapSize - size of the generated Mesh
      * @param scale - scale for noise (0,200]
      * @param octaves - number of noise signals used (0,10]
-     * @param persistance - controls decrease in amplitude of octaves (0,1)
+     * @param persistence - controls decrease in amplitude of octaves (0,1)
      * @param lacunarity - controls increase in frequency of octaves (1,200)
      */
-    constructor(mapWidth, mapHeight, scale, octaves, persistance, lacunarity) {
-        this.mapWidth = mapWidth;
-        this.mapHeight = mapHeight;
+    constructor(mapSize, scale, octaves, persistence, lacunarity) {
+        this.mapSize = mapSize;
         this.scale = scale === 0 ? 0.0001 : scale;
         this.octaves = octaves;
-        this.persistance = persistance;
+        this.persistence = persistence;
         this.lacunarity = lacunarity;
+        this.colorRegions = {
+            edges: [],
+            colors: []
+        };
     }
 
     /**
-     *
      * @param {number} seed - random seed for noise generation
      * @return {Array} noiseMap
      */
     generateNoiseMap(seed) {
         let noiseMap = [];
-        let random = new Alea(seed)
-        let simplex = new SimplexNoise(random);
+        noise.seed(seed);
 
         let maxNoiseHeight = Number.MIN_SAFE_INTEGER;
         let minNoiseHeight = Number.MAX_SAFE_INTEGER
 
-        for (let y=0; y < this.mapHeight; y++) {
-            for (let x=0; x < this.mapWidth; x++) {
+        for (let y=0; y < this.mapSize; y++) {
+            noiseMap[y] = [];
+            for (let x=0; x < this.mapSize; x++) {
 
                 // We add noise values of all octaves
                 // We initialize first octave with amplitude = 1 and frequency = 1
@@ -50,11 +53,11 @@ export default class TerrainGenerator {
                     let sampleY = y / this.scale * frequency;
 
                     // Creating more dynamic height changes by increasing range to negative numbers
-                    let perlinValue = simplex.noise2D(sampleX, sampleY) * 2 - 1;
-                    noiseHeight += perlinValue * this.persistance;
+                    let perlinValue = noise.simplex2(sampleX, sampleY);
+                    noiseHeight += perlinValue * amplitude;
 
                     // Decrease amplitude and increase frequency
-                    amplitude *= this.persistance;
+                    amplitude *= this.persistence;
                     frequency *= this.lacunarity;
                 }
 
@@ -62,7 +65,7 @@ export default class TerrainGenerator {
                 maxNoiseHeight = noiseHeight > maxNoiseHeight ? noiseHeight : maxNoiseHeight;
                 minNoiseHeight = noiseHeight < minNoiseHeight ? noiseHeight : minNoiseHeight;
 
-                noiseMap[x][y] = noiseHeight;
+                noiseMap[y][x] = noiseHeight;
             }
         }
 
@@ -83,38 +86,107 @@ export default class TerrainGenerator {
 
 
         // Normalize noiseMap with smoothstep
-        for (let y=0; y < this.mapHeight; y++) {
-            for (let x = 0; x < this.mapWidth; x++) {
-                noiseMap[x][y] = smoothstep(minNoiseHeight, maxNoiseHeight, noiseMap[x][y]);
+        for (let y=0; y < this.mapSize; y++) {
+            for (let x = 0; x < this.mapSize; x++) {
+                noiseMap[y][x] = smoothstep(minNoiseHeight, maxNoiseHeight, noiseMap[x][y]);
             }
         }
 
         return noiseMap;
     }
 
-    generateTexture (noiseMap) {
-        let width = noiseMap.length;
-        let height = noiseMap[0].length;
+    /**
+     *     {
+      "type": "model",
+      "mesh": 0,
+      "texture": 0,
+      "aabb": {
+        "min": [-1, -0.1, -1],
+        "max": [1, 0.1, 1]
+      },
+      "translation": [3, 0.1, -1],
+      "rotation": [0, 1, 0],
+      "scale": [1, 0.1, 1]
+    }
+     */
+    generateMesh (noiseMap) {
+        let mesh = new Mesh(Mesh.defaults);
+        console.log(noiseMap);
 
-        //2D array of colours
-        let colorMap = [];
+        // Calculate coordinates
+        let vertInd = 0;
+        for (let y=0; y < this.mapSize; y++) {
+            for (let x=0; x < this.mapSize; x++) {
+                mesh.vertices.push(x / this.mapSize, noiseMap[y][x], y / this.mapSize);
+                mesh.texcoords.push(x / this.mapSize, y / this.mapSize);
+                mesh.normals.push(0, 0, 0);
 
-        // Here we create color for each vert based on height
-        for (let y=0; y < height; y++) {
-            for(let x=0; x < width; x++) {
-                colorMap[x][y] = vec3.lerp(vec3.create(), vec3.fromValues(0,0,0), vec3.fromValues(255,255,255), noiseMap[x][y]);
+                if (x < this.mapSize - 1 && y < this.mapSize -1) {
+                    mesh.indices.push(vertInd, vertInd + this.mapSize + 1, vertInd + this.mapSize);
+                    mesh.indices.push(vertInd + this.mapSize + 1, vertInd, vertInd + 1);
+                }
+                vertInd++
             }
         }
-        return colorMap;
+
+        /**
+        // Calculate surface normals
+        let v = mesh.vertices;
+        let ind = mesh.indices;
+        let temp = vec3.create();
+
+        // We sum normals from all triangles
+        for (let i=0; i < mesh.indices.length - 2; i+=3) {
+            let a = vec3.fromValues(v[ind[i]], v[ind[i]+1], v[ind[i]+2]);
+            let b = vec3.fromValues(v[ind[i+1]], v[ind[i+1]+1], v[ind[i+1]+2]);
+            let c = vec3.fromValues(v[ind[i+2]], v[ind[i+2]+1], v[ind[i+2]+2]);
+
+            let n = vec3.create();
+            let sub1 = vec3.create();
+            let sub2 = vec3.create();
+
+            vec3.cross(n, vec3.sub(sub1, b, a), vec3.sub(sub2, c, a));
+
+            mesh.normals[ind[i]] += n[0];
+            mesh.normals[ind[i]+1] += n[1];
+            mesh.normals[ind[i]+2] += n[2];
+
+            mesh.normals[ind[i+1]] += n[0];
+            mesh.normals[ind[i+1]+1] += n[1];
+            mesh.normals[ind[i+1]+2] += n[2];
+
+            mesh.normals[ind[i+2]] += n.x;
+            mesh.normals[ind[i+2]+1] += n.y;
+            mesh.normals[ind[i+2]+2] += n.z;
+        }
+
+        // We normalize normals for each vertex
+        for (let i=0; i < mesh.vertices.length - 2; i+=3) {
+            let n = vec3.fromValues(mesh.normals[i], mesh.normals[i+1], mesh.normals[i+2]);
+            vec3.normalize(n, n);
+            mesh.normals[i] = n[0];
+            mesh.normals[i+1] = n[1];
+            mesh.normals[i+2] = n[2];
+        }*/
+
+        return mesh;
     }
 
-    // TODO: `function for generating mesh from noise map`
-    generateMesh () {
-
-    }
-
-    // TODO: `setColorRegions() for coloring verts based on height (sea, beach, forest, mountains, snow)`
-    setColorRegions() {
+    /**
+     * Regions:{
+     *     Deep Water,
+     *     Shallow Water,
+     *     Beach,
+     *     Grass,
+     *     Low hill,
+     *     High hill,
+     *     Rocks,
+     *     Snow
+     * }
+     * @param {Array<number>} edges - edges for each of the regions
+     * @param {Array<vec3>} colors - rgba colors for each region
+     */
+    setColorRegions(edges, colors) {
 
     }
 

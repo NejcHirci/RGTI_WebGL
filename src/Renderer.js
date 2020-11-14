@@ -35,7 +35,6 @@ export default class Renderer {
 
     render(scene, camera) {
         const gl = this.gl;
-
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         const program = this.programs.simple;
@@ -73,6 +72,7 @@ export default class Renderer {
 
         const vao = gl.createVertexArray();
         gl.bindVertexArray(vao);
+        console.log(model);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.vertices), gl.STATIC_DRAW);

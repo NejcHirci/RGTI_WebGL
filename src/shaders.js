@@ -6,9 +6,11 @@ uniform mat4 uViewModel;
 uniform mat4 uProjection;
 
 out vec2 vTexCoord;
+out vec4 vColor;
 
 void main() {
     vTexCoord = aTexCoord;
+    vColor = vec4( 0, 1, 2, 1);
     gl_Position = uProjection * uViewModel * aPosition;
 }
 `;
@@ -19,11 +21,12 @@ precision mediump float;
 uniform mediump sampler2D uTexture;
 
 in vec2 vTexCoord;
+in vec4 vColor;
 
 out vec4 oColor;
 
 void main() {
-    oColor = texture(uTexture, vTexCoord);
+    oColor = vColor;
 }
 `;
 

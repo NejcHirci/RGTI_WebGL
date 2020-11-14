@@ -5,6 +5,7 @@ import Physics from './Physics.js';
 import Camera from './Camera.js';
 import SceneLoader from './SceneLoader.js';
 import SceneBuilder from './SceneBuilder.js';
+import TerrainGenerator from "./TerrainGenerator.js";
 
 class App extends Application {
 
@@ -19,11 +20,15 @@ class App extends Application {
         this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
         document.addEventListener('pointerlockchange', this.pointerlockchangeHandler);
 
-        this.load('scene.json');
+        this.load('./src/scene.json');
     }
 
     async load(uri) {
-        const scene = await new SceneLoader().loadScene('scene.json');
+        const scene = await new SceneLoader().loadScene(uri);
+        const terrainGenerator = new TerrainGenerator(241, 120, 5, 0.2, 2);
+        const seed = 42;
+        const terrainMesh = terrainGenerator.generateMesh(terrainGenerator.generateNoiseMap(seed));
+        scene.meshes.push(terrainMesh);
         const builder = new SceneBuilder(scene);
         this.scene = builder.build();
         this.physics = new Physics(this.scene);
@@ -36,6 +41,7 @@ class App extends Application {
             }
         });
 
+        console.log(this.scene)
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
         this.renderer.prepare(this.scene);
