@@ -28,7 +28,7 @@ class App extends Application {
     async load(uri) {
         const scene = await new SceneLoader().loadScene(uri);
         this.terrainGenerator = new TerrainGenerator(241, 60, 5, 0.2, 2, 20);
-        const seed = 42;
+        const seed = 82;
 
         const heightMap = this.terrainGenerator.generateNoiseMap(seed);
         scene.meshes.push(this.terrainGenerator.generateMesh(heightMap));
