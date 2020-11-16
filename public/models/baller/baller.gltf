@@ -1,0 +1,342 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.3.48",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+                ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Soccer_Ball",
+            "rotation" : [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071067094802856
+            ],
+            "translation" : [
+               3,
+                10,
+                -7.237978935241699
+            ],
+            "scale": [
+                0.3,
+                0.3,
+                0.3
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                0,
+                0,
+                0
+            ],
+            "name" : "White",
+            "normalTexture" : {
+                "index" : 0,
+                "texCoord" : 0
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 1,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.7642977237701416
+            }
+        },
+        {
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                0,
+                0,
+                0
+            ],
+            "name" : "Black",
+            "normalTexture" : {
+                "index" : 2,
+                "texCoord" : 0
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 3,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.7642977237701416
+            }
+        },
+        {
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                0,
+                0,
+                0
+            ],
+            "name" : "wire_086086086",
+            "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    0.33730000257492065,
+                    0.33730000257492065,
+                    0.33730000257492065,
+                    1
+                ],
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.8114382028579712
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Soccer_Ball",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                },
+                {
+                    "attributes" : {
+                        "POSITION" : 4,
+                        "NORMAL" : 5,
+                        "TEXCOORD_0" : 6
+                    },
+                    "indices" : 7,
+                    "material" : 1
+                },
+                {
+                    "attributes" : {
+                        "POSITION" : 8,
+                        "NORMAL" : 9,
+                        "TEXCOORD_0" : 10
+                    },
+                    "indices" : 11,
+                    "material" : 2
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "source" : 0
+        },
+        {
+            "source" : 1
+        },
+        {
+            "source" : 2
+        },
+        {
+            "source" : 3
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Leather_White_normal",
+            "uri" : "Leather_White_normal.jpg"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Leather_White_albedo",
+            "uri" : "Leather_White_albedo.jpg"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Leather_Black_normal",
+            "uri" : "Leather_Black_normal.jpg"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Leather_Black_albedo",
+            "uri" : "Leather_Black_albedo.jpg"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 14981,
+            "max" : [
+                3.44320011138916,
+                3.44320011138916,
+                -0.005799999926239252
+            ],
+            "min" : [
+                -3.44320011138916,
+                -3.44320011138916,
+                -6.892199993133545
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 14981,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 14981,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 63360,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5126,
+            "count" : 7616,
+            "max" : [
+                3.3752999305725098,
+                3.3752999305725098,
+                -0.07370000332593918
+            ],
+            "min" : [
+                -3.3752999305725098,
+                -3.3752999305725098,
+                -6.8242998123168945
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 5,
+            "componentType" : 5126,
+            "count" : 7616,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 6,
+            "componentType" : 5126,
+            "count" : 7616,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 7,
+            "componentType" : 5123,
+            "count" : 31680,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 8,
+            "componentType" : 5126,
+            "count" : 16026,
+            "max" : [
+                3.431999921798706,
+                3.431999921798706,
+                -0.017000000923871994
+            ],
+            "min" : [
+                -3.431999921798706,
+                -3.431999921798706,
+                -6.88100004196167
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 9,
+            "componentType" : 5126,
+            "count" : 16026,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 10,
+            "componentType" : 5126,
+            "count" : 16026,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 11,
+            "componentType" : 5123,
+            "count" : 86400,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 179772,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 179772,
+            "byteOffset" : 179772
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 119848,
+            "byteOffset" : 359544
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 126720,
+            "byteOffset" : 479392
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 91392,
+            "byteOffset" : 606112
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 91392,
+            "byteOffset" : 697504
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 60928,
+            "byteOffset" : 788896
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 63360,
+            "byteOffset" : 849824
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 192312,
+            "byteOffset" : 913184
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 192312,
+            "byteOffset" : 1105496
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 128208,
+            "byteOffset" : 1297808
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 172800,
+            "byteOffset" : 1426016
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1598816,
+            "uri" : "baller.bin"
+        }
+    ]
+}

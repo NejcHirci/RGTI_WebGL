@@ -87,3 +87,37 @@ export function createTexture(gl, options) {
 
     return texture;
 }
+
+/***
+ *
+ * GLTF metode START
+ *
+ ***/
+
+export function createSampler(gl, options) {
+    const sampler = options.sampler || gl.createSampler();
+
+    if (options.wrapS) { gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, options.wrapS); }
+    if (options.wrapT) { gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, options.wrapT); }
+    if (options.min) { gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, options.min); }
+    if (options.mag) { gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, options.mag); }
+
+    return sampler;
+}
+
+export function createBuffer(gl, options) {
+    const target = options.target || gl.ARRAY_BUFFER;
+    const hint   = options.hint   || gl.STATIC_DRAW;
+    const buffer = options.buffer || gl.createBuffer();
+
+    gl.bindBuffer(target, buffer);
+    gl.bufferData(target, options.data, hint);
+
+    return buffer;
+}
+
+/***
+ *
+ * GLTF metode END
+ *
+ ***/
