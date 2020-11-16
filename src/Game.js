@@ -68,6 +68,8 @@ class App extends Application {
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
 
+        //this.camera.addChild(this.ball);
+
         this.renderer.prepare(this.scene, this.ball);
 
         this.initOimoPhysics();
@@ -93,15 +95,15 @@ class App extends Application {
         })
 
         let x, y, z;
-        let r = 5;
+        let r = 10.7;
         // NOT SURE KAKO SE DODA TEREN V OIMO AMPAK V NJIHOVIH EXAMPLIH JE NEKI TAZGA
-        for ( var i = 0; i < vertices.length;  i += 18 ) {
+        for ( var i = 0; i < vertices.length;  i += 15 ) {
 
             x = vertices[ i ];
             y = vertices[ i+1 ] - r;
             z = vertices[ i+2 ];
 
-            this.world.add({type:'sphere', size:[r], pos:[x,y,z] })
+            this.world.add({type:'sphere', size: [1 ], pos:[x,y,z] })
 
         }
 
@@ -109,8 +111,8 @@ class App extends Application {
             this.ball_body = this.world.add({
                 type:'sphere', // type of shape : sphere, box, cylinder
                 size:[1,1,1], // size of shape
-                pos: this.ball.translation, // start position in degree
-                rot:[0,0,90], // start rotation in degree
+                pos:this.ball.translation, // start position in degree
+                rot:this.ball.rotation, // start rotation in degree
                 move:true, // dynamic or statique
                 density: 1,
                 friction: 0.2,
@@ -172,15 +174,23 @@ class App extends Application {
         if(this.world) {
             // oimo zracune nove pozicije v svetu
             // for some reason kamero zamakne, ko jo toggelaš off ce je "this.world.step();" odkomentiran?
-            //  this.world.step();
-            // tukej neki spremenis verjetno najboljs v nekem novem pyhsics filu
+            this.world.step();
+            //tukej neki spremenis verjetno najboljs v nekem novem pyhsics filu
 
 
+            this.ball.translation = [(this.ball_body.position.x), (this.ball_body.position.y), (this.ball_body.position.z)];
+            this.ball.rotation = [this.ball_body.orientation.x,this.ball_body.orientation.y,this.ball_body.orientation.z,this.ball_body.orientation.w];
+
+            this.ball.updateMatrix();
+            console.log(this.ball_body);
             //TEST
+            /*
             let q= this.ball.rotation
-            quat.rotateX(q,q,0.07 );
+            quat.rotateY(q,q,0.07 );
             this.ball.rotation = q;
             this.ball.updateMatrix();
+            */
+
 
 
 
