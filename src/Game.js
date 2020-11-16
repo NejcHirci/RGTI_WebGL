@@ -36,7 +36,7 @@ class App extends Application {
         this.gltfLoader = new GLTFLoader();
 
         // load the baller
-        await this.gltfLoader.load('../../public/models/baller/baller.gltf');
+        await this.gltfLoader.load('../../public/models/baller/chadBaller.gltf');
         const baller = await this.gltfLoader.loadBall(this.gltfLoader.defaultScene);
 
         const scene = await new SceneLoader().loadScene(uri);
@@ -171,27 +171,19 @@ class App extends Application {
         }
         if(this.world) {
             // oimo zracune nove pozicije v svetu
-            // for some reason kamero zamakne, ko jo toggelaš off ce je spodnji del kode odkomentiran
-            // spodnji del kode: this.world.step();
+            // for some reason kamero zamakne, ko jo toggelaš off ce je "this.world.step();" odkomentiran?
+            //  this.world.step();
             // tukej neki spremenis verjetno najboljs v nekem novem pyhsics filu
 
 
             //TEST
-            //this.ball.translation[1] = this.ball.translation[1] - 0.01;
-            // nism sue zakaj to ne dela but hey now its here
-            let translation = this.ball.translation;
-            this.ball.translation = [2,2,2];
-
-            this.ball.updateMatrix();
-
             let q= this.ball.rotation
             quat.rotateX(q,q,0.07 );
             this.ball.rotation = q;
             this.ball.updateMatrix();
 
 
-            this.ball.translation = translation;
-            this.ball.updateMatrix();
+
 
         }
 
