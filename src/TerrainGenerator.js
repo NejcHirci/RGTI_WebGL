@@ -1,4 +1,5 @@
 import Mesh from "./Mesh.js";
+import {Bezier} from "../lib/bezier.js"
 
 const vec3 = glMatrix.vec3;
 const vec2 = glMatrix.vec2;
@@ -23,16 +24,21 @@ export default class TerrainGenerator {
         this.persistence = persistence;
         this.lacunarity = lacunarity;
         this.colorRegions = {
-            edges: [0.4, 0.45, 0.55, 1],
+            edges: [0.35, 0.40, 0.50, 0.75, 0.95, 1],
             colors: [
                 vec3.fromValues(66,121,229),
                 vec3.fromValues(210, 208, 125),
                 vec3.fromValues(86, 152, 23),
-                vec3.fromValues(62, 107, 18)
+                vec3.fromValues(62, 107, 18),
+                vec3.fromValues(85, 71, 69),
+                vec3.fromValues(255, 255,255)
             ]
         };
         this.heightMult = heightMult;
         this.falloffMap = this.generateFalloffMap();
+        this.bezier = new Bezier(
+            {x: 0, y:0}, {x:0.35, y:0}, {x:0.50, y: 0.1},{x: 1, y:1}
+        );
     }
 
     /**
@@ -137,7 +143,7 @@ export default class TerrainGenerator {
         let vertInd = 0;
         for (let y=0; y < this.mapSize; y++) {
             for (let x=0; x < this.mapSize; x++) {
-                mesh.vertices.push(topLeftX + x, noiseMap[y][x] * this.heightMult, topLeftZ -y);
+                mesh.vertices.push(topLeftX + x, this.bezier.get(noiseMap[y][x]).y * this.heightMult, topLeftZ -y);
                 mesh.texcoords.push(x / this.mapSize, y / this.mapSize);
                 mesh.normals.push(0, 0, 0);
 
@@ -169,28 +175,28 @@ export default class TerrainGenerator {
             vec3.normalize(n, n);
 
             // Normal in A
-            mesh.normals[ind[i]] = n[0];
-            mesh.normals[ind[i]+1] = n[1];
-            mesh.normals[ind[i]+2] = n[2];
+            mesh.normals[ind[i]] += n[0];
+            mesh.normals[ind[i]+1] += n[1];
+            mesh.normals[ind[i]+2] += n[2];
 
             // Normal in B
-            mesh.normals[ind[i+1]] = n[0];
-            mesh.normals[ind[i+1]+1] = n[1];
-            mesh.normals[ind[i+1]+2] = n[2];
+            mesh.normals[ind[i+1]] += n[0];
+            mesh.normals[ind[i+1]+1] += n[1];
+            mesh.normals[ind[i+1]+2] += n[2];
 
             // Normal in C
-            mesh.normals[ind[i+2]] = n[0];
-            mesh.normals[ind[i+2]+1] = n[1];
-            mesh.normals[ind[i+2]+2] = n[2];
+            mesh.normals[ind[i+2]] += n[0];
+            mesh.normals[ind[i+2]+1] += n[1];
+            mesh.normals[ind[i+2]+2] += n[2];
         }
 
         // We normalize normals for each vertex
         for (let i=0; i < mesh.vertices.length - 2; i+=3) {
             let n = vec3.fromValues(mesh.normals[i], mesh.normals[i+1], mesh.normals[i+2]);
             vec3.normalize(n, n);
-            mesh.normals[i] = n[0];
-            mesh.normals[i+1] = n[1];
-            mesh.normals[i+2] = n[2];
+            mesh.normals[i] = -n[0];
+            mesh.normals[i+1] = -n[1];
+            mesh.normals[i+2] = -n[2];
         }
 
         return mesh;
