@@ -37,7 +37,7 @@ export default class TerrainGenerator {
         this.heightMult = heightMult;
         this.falloffMap = this.generateFalloffMap();
         this.bezier = new Bezier(
-            {x: 0, y:0}, {x:0.35, y:0}, {x:0.50, y: 0.1},{x: 1, y:1}
+            {x: 0, y:0}, {x:0.35, y:0}, {x:0.50, y: 0},{x: 1, y:1}
         );
     }
 
@@ -138,19 +138,48 @@ export default class TerrainGenerator {
 
         let topLeftX = (this.mapSize -1) / -2;
         let topLeftZ = (this.mapSize - 1) / 2;
+        let height, normal;
+        let nw,n,ne,e,w,sw,s,se;
+        let dydx,dydz;
 
         // Calculate coordinates
         let vertInd = 0;
         for (let y=0; y < this.mapSize; y++) {
             for (let x=0; x < this.mapSize; x++) {
-                mesh.vertices.push(topLeftX + x, this.bezier.get(noiseMap[y][x]).y * this.heightMult, topLeftZ -y);
+                mesh.vertices.push(topLeftX + x, this.bezier.get(noiseMap[y][x]).y * this.heightMult, topLeftZ - y);
                 mesh.texcoords.push(x / this.mapSize, y / this.mapSize);
-                mesh.normals.push(0, 0, 0);
 
                 if (x < this.mapSize - 1 && y < this.mapSize -1) {
                     mesh.indices.push(vertInd, vertInd + this.mapSize + 1, vertInd + this.mapSize);
                     mesh.indices.push(vertInd + this.mapSize + 1, vertInd, vertInd + 1);
                 }
+
+                normal = vec3.fromValues(0, 1, 0);
+
+                if(x > 0 && y > 0 && x < this.mapSize-1 && y < this.mapSize-1) {
+
+                    nw = this.bezier.get(noiseMap[y-1][x-1]).y * this.heightMult;
+                    n = this.bezier.get(noiseMap[y-1][x]).y * this.heightMult;
+                    ne = this.bezier.get(noiseMap[y-1][x+1]).y * this.heightMult;
+
+                    e = this.bezier.get(noiseMap[y][x+1]).y * this.heightMult;
+                    w = this.bezier.get(noiseMap[y][x-1]).y * this.heightMult;
+
+                    sw = this.bezier.get(noiseMap[y+1][x-1]).y * this.heightMult;
+                    s = this.bezier.get(noiseMap[y+1][x]).y * this.heightMult;
+                    se = this.bezier.get(noiseMap[y+1][x+1]).y * this.heightMult;
+
+                    dydx = ((ne + 2 * e + se) - (nw + 2 * w + sw));
+                    dydz = ((sw + 2 * s + se) - (nw + 2 * n + ne));
+
+                    normal = vec3.normalize(vec3.create(), vec3.fromValues(-dydx, 1.0, -dydz));
+                }
+
+                if (noiseMap[y][x] <= 0.36) {
+                    normal = vec3.fromValues(0,1,0);
+                }
+                mesh.normals.push(normal[0], normal[1], normal[2]);
+
                 vertInd++
             }
         }
@@ -158,13 +187,18 @@ export default class TerrainGenerator {
         // Calculate surface normals
         let v = mesh.vertices;
         let ind = mesh.indices;
-        let temp = vec3.create();
+
+        for (let y=0; y < this.mapSize; y++) {
+            for (let x = 0; x < this.mapSize; x++) {
+
+            }
+        }
 
         // We sum normals from all triangles
-        for (let i=0; i < mesh.indices.length - 2; i+=3) {
-            let a = vec3.fromValues(v[ind[i]], v[ind[i]+1], v[ind[i]+2]);
-            let b = vec3.fromValues(v[ind[i+1]], v[ind[i+1]+1], v[ind[i+1]+2]);
-            let c = vec3.fromValues(v[ind[i+2]], v[ind[i+2]+1], v[ind[i+2]+2]);
+        /*for (let i=0; i < mesh.indices.length - 2; i+=3) {
+            let a = vec3.fromValues(v[ind[i]], v[ind[i]+2], v[ind[i]+1]);
+            let b = vec3.fromValues(v[ind[i+1]], v[ind[i+1]+2], v[ind[i+1]+1]);
+            let c = vec3.fromValues(v[ind[i+2]], v[ind[i+2]+2], v[ind[i+2]+1]);
 
             let n = vec3.create();
             let sub1 = vec3.create();
@@ -172,51 +206,35 @@ export default class TerrainGenerator {
 
             vec3.cross(n, vec3.sub(sub1, b, a), vec3.sub(sub2, c, a));
 
-            vec3.normalize(n, n);
-
             // Normal in A
             mesh.normals[ind[i]] += n[0];
-            mesh.normals[ind[i]+1] += n[1];
-            mesh.normals[ind[i]+2] += n[2];
+            mesh.normals[ind[i]+1] += n[2];
+            mesh.normals[ind[i]+2] += n[1];
 
             // Normal in B
             mesh.normals[ind[i+1]] += n[0];
-            mesh.normals[ind[i+1]+1] += n[1];
-            mesh.normals[ind[i+1]+2] += n[2];
+            mesh.normals[ind[i+1]+1] += n[2];
+            mesh.normals[ind[i+1]+2] += n[1];
 
             // Normal in C
             mesh.normals[ind[i+2]] += n[0];
-            mesh.normals[ind[i+2]+1] += n[1];
-            mesh.normals[ind[i+2]+2] += n[2];
+            mesh.normals[ind[i+2]+1] += n[2];
+            mesh.normals[ind[i+2]+2] += n[1];
         }
 
         // We normalize normals for each vertex
-        for (let i=0; i < mesh.vertices.length - 2; i+=3) {
-            let n = vec3.fromValues(mesh.normals[i], mesh.normals[i+1], mesh.normals[i+2]);
-            vec3.normalize(n, n);
-            mesh.normals[i] = -n[0];
-            mesh.normals[i+1] = -n[1];
-            mesh.normals[i+2] = -n[2];
+        console.log(mesh.normals.length);
+        for (let i=0; i < mesh.normals.length - 2; i+=3) {
+            let norm = vec3.fromValues(mesh.normals[i], mesh.normals[i+1], mesh.normals[i+2]);
+            norm = vec3.normalize(vec3.create(), norm);
+            mesh.normals[i] = norm[0];
+            mesh.normals[i+1] = norm[2];
+            mesh.normals[i+2] = norm[1];
         }
+        console.log(mesh);
+         */
 
         return mesh;
-    }
-    /**
-     * Regions:{
-     *     Deep Water,
-     *     Shallow Water,
-     *     Beach,
-     *     Grass,
-     *     Low hill,
-     *     High hill,
-     *     Rocks,
-     *     Snow
-     * }
-     * @param {Array<number>} edges - edges for each of the regions
-     * @param {Array<vec3>} colors - rgba colors for each region
-     */
-    setColorRegions(edges, colors) {
-
     }
 
     generateFalloffMap() {

@@ -11,7 +11,7 @@ export default class Light extends Node {
 
 
 Light.defaults = {
-    position         : [50, 50, 50],
+    position         : [2000, 2000, 2000],
     ambientColor     : [51, 51, 51],
     diffuseColor     : [204, 204, 204],
     specularColor    : [255, 255, 255],

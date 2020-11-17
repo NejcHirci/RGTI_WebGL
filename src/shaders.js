@@ -58,13 +58,16 @@ void main() {
     float lambert = max(0.0, dot(L, N));
     float phong = pow(max(0.0, dot(E, R)), uShininess);
 
+    lambert = smoothstep(0.0, 1.0, lambert);
+    float toon = floor(lambert * 10.0) / 10.0;
+ 
     vec3 ambient = uAmbientColor;
-    vec3 diffuse = uDiffuseColor * lambert;
+    vec3 diffuse = uDiffuseColor * toon;
     vec3 specular = uSpecularColor * phong;
+    vec3 light = (ambient + diffuse);
+    
 
-    vec3 light = (ambient + diffuse + specular);
-
-    oColor = texture(uTexture, vTexCoord);
+    oColor = texture(uTexture, vTexCoord) * vec4(light,1);
 }
 `;
 

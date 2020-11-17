@@ -40,7 +40,7 @@ class App extends Application {
         const baller = await this.gltfLoader.loadBall(this.gltfLoader.defaultScene);
 
         const scene = await new SceneLoader().loadScene(uri);
-        this.terrainGenerator = new TerrainGenerator(241, 60, 5, 0.2, 2, 20);
+        this.terrainGenerator = new TerrainGenerator(241, 50, 5, 0.2, 2, 20);
         const seed = 82;
 
         const heightMap = this.terrainGenerator.generateNoiseMap(seed);
@@ -182,7 +182,6 @@ class App extends Application {
             this.ball.rotation = [this.ball_body.orientation.x,this.ball_body.orientation.y,this.ball_body.orientation.z,this.ball_body.orientation.w];
 
             this.ball.updateMatrix();
-            console.log(this.ball_body);
             //TEST
             /*
             let q= this.ball.rotation
@@ -225,9 +224,5 @@ document.addEventListener('DOMContentLoaded', () => {
     gui.addColor(app.light, 'ambientColor');
     gui.addColor(app.light, 'diffuseColor');
     gui.addColor(app.light, 'specularColor');
-    gui.add(app.light, 'shininess', 0.0, 1000.0);
-    for (let i = 0; i < 3; i++) {
-        gui.add(app.light.position, i, -50.0, 50.0).name('position.' + String.fromCharCode('x'.charCodeAt(0) + i));
-    }
     gui.add(app, 'enableCamera');
 });
