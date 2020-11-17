@@ -20,12 +20,17 @@ export default class Renderer {
             height : 1,
             data   : new Uint8Array([255, 255, 255, 255])
         });
+        this.defaultSampler = WebGL.createSampler(gl, {
+            mag:gl.NEAREST,
+            min:gl.NEAREST,
+            wrapS:gl.CLAMP_TO_EDGE,
+            wrapT:gl.CLAMP_TO_EDGE
+        });
     }
 
     prepare(scene, ball) {
         scene.nodes.forEach(node => {
             node.gl = {};
-            console.log(node);
             if (node.mesh) {
                 Object.assign(node.gl, this.createModel(node.mesh));
             }
@@ -183,8 +188,8 @@ export default class Renderer {
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-       let program = this.programs.simple;
-       gl.useProgram(program.program);
+        let program = this.programs.simple;
+        gl.useProgram(program.program);
 
         let matrix = mat4.create();
         let matrixStack = [];
@@ -207,11 +212,6 @@ export default class Renderer {
         gl.uniform3fv(program.uniforms.uLightPosition, light.position);
         gl.uniform3fv(program.uniforms.uLightAttenuation, light.attenuatuion);
 
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
         scene.traverse(
             node => {
 
@@ -222,6 +222,7 @@ export default class Renderer {
                     gl.uniformMatrix4fv(program.uniforms.uViewModel, false, matrix);
                     gl.activeTexture(gl.TEXTURE0);
                     gl.bindTexture(gl.TEXTURE_2D, node.gl.texture);
+                    gl.bindSampler(0, this.defaultSampler);
                     gl.uniform1i(program.uniforms.uTexture, 0);
                     gl.drawElements(gl.TRIANGLES, node.gl.indices, gl.UNSIGNED_SHORT, 0);
                 }
@@ -234,8 +235,8 @@ export default class Renderer {
         );
 
         // zamenja program
-        program = this.programs.baller;
-        gl.useProgram(program.program);
+        let programBaller = this.programs.simple;
+        gl.useProgram(programBaller.program);
         gl.uniformMatrix4fv(program.uniforms.uProjection, false, camera.projection);
         gl.uniform1i(program.uniforms.uTexture, 0);
 
