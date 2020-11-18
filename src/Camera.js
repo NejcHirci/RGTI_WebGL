@@ -19,7 +19,7 @@ export default class Camera extends Node {
         this.keydownHandler = this.keydownHandler.bind(this);
         this.keyupHandler = this.keyupHandler.bind(this);
         this.keys = {};
-        this.ballTranslation = [1, 0, 5];
+        this.ballTranslation = [5, 1, 5];
         this.stationaryRotate= false;
     }
 
