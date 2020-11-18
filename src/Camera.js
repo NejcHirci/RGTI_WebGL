@@ -19,7 +19,7 @@ export default class Camera extends Node {
         this.keydownHandler = this.keydownHandler.bind(this);
         this.keyupHandler = this.keyupHandler.bind(this);
         this.keys = {};
-        this.ballTranslation = [5, 1, 5];
+        this.ballTranslation = [0, 2, 5];
         this.stationaryRotate= false;
     }
 
@@ -52,6 +52,7 @@ export default class Camera extends Node {
             // ce odkometiras pol zakometiri pri zogi !!!
             //this.move(dt);
         }
+
     }
 
     move(dt) {

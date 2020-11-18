@@ -20,11 +20,15 @@ export default class Node {
     updateTransform() {
         const t = this.transform;
         const degrees = this.rotation.map(x => x * 180 / Math.PI);
-        if (this.rotation && this.rotation.length == 3) {
-            let q = quat.fromEuler(quat.create(), ...degrees);
-        } else {
-            let q = this.rotation;
-        }
+        const q = quat.fromEuler(quat.create(), ...degrees);
+        const v = vec3.clone(this.translation);
+        const s = vec3.clone(this.scale);
+        mat4.fromRotationTranslationScale(t, q, v, s);
+    }
+
+    updateTransformEuler() {
+        const t = this.transform;
+        const q = this.rotation;
         const v = vec3.clone(this.translation);
         const s = vec3.clone(this.scale);
         mat4.fromRotationTranslationScale(t, q, v, s);
