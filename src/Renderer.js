@@ -42,6 +42,8 @@ export default class Renderer {
         if (ball.mesh) {
             this.prepareMesh(ball.mesh);
         }
+
+
     }
 
     /***
@@ -241,7 +243,24 @@ export default class Renderer {
         gl.uniform1i(programBaller.uniforms.uTexture, 0);
 
 
-        this.renderNode(ball , matrix );
+        this.renderBallNode(ball , matrix );
+
+    }
+
+    renderBallNode(node, mvpMatrix) {
+        const gl = this.gl;
+
+        mvpMatrix = mat4.clone(mvpMatrix);
+        mat4.mul(mvpMatrix, mvpMatrix, node.matrix);
+
+        if (node.mesh) {
+            const program = this.programs.baller;
+            gl.uniformMatrix4fv(program.uniforms.uViewModel, false, mvpMatrix);
+            for (const primitive of node.mesh.primitives) {
+                this.renderPrimitive(primitive);
+            }
+        }
+
 
     }
 

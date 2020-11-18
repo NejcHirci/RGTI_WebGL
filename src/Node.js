@@ -1,4 +1,5 @@
 import Utils from './Utils.js';
+import BallNode from "./GLTF/BallNode.js";
 
 const vec3 = glMatrix.vec3;
 const mat4 = glMatrix.mat4;
@@ -19,14 +20,18 @@ export default class Node {
     updateTransform() {
         const t = this.transform;
         const degrees = this.rotation.map(x => x * 180 / Math.PI);
-        const q = quat.fromEuler(quat.create(), ...degrees);
+        if (this.rotation && this.rotation.length == 3) {
+            let q = quat.fromEuler(quat.create(), ...degrees);
+        } else {
+            let q = this.rotation;
+        }
         const v = vec3.clone(this.translation);
         const s = vec3.clone(this.scale);
         mat4.fromRotationTranslationScale(t, q, v, s);
     }
 
     getGlobalTransform() {
-        if (!this.parent) {
+        if (!this.parent || this.parent instanceof BallNode) {
             return mat4.clone(this.transform);
         } else {
             let transform = this.parent.getGlobalTransform();

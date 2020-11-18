@@ -11,7 +11,7 @@ import GLTFLoader from "./GLTF/GLTFLoader.js";
 import BallNode from "./GLTF/BallNode.js";
 import Model from "./Model.js";
 
-const quat = glMatrix.quat;
+const vec3= glMatrix.vec3;
 
 class App extends Application {
 
@@ -55,6 +55,7 @@ class App extends Application {
         this.camera = null;
         this.scene.traverse(node => {
             if (node instanceof Camera) {
+                this.camera = new Camera();
                 this.camera = node;
             }
         });
@@ -63,6 +64,7 @@ class App extends Application {
         if (baller) {
             this.ball = new BallNode();
             this.ball = baller;
+            this.ball.addChild(this.camera);
         }
 
         this.camera.aspect = this.aspect;
@@ -95,25 +97,27 @@ class App extends Application {
         })
 
         let x, y, z;
-        let r = 10.7;
+        let r = 1;
+
         // NOT SURE KAKO SE DODA TEREN V OIMO AMPAK V NJIHOVIH EXAMPLIH JE NEKI TAZGA
-        for ( var i = 0; i < vertices.length;  i += 15 ) {
+        for ( var i = 0; i < vertices.length;  i += 12 ) {
 
             x = vertices[ i ];
-            y = vertices[ i+1 ] - r;
+            y = vertices[ i+1 ] - r ;
             z = vertices[ i+2 ];
 
-            this.world.add({type:'sphere', size: [1 ], pos:[x,y,z] })
+            this.world.add({type:'sphere', size: [1], pos:[x,y,z] })
 
         }
 
         if (this.ball) {
-            this.ball_body = this.world.add({
+            // v worldProperties se belezijo vsi trenutni physicsi o zogi
+            this.ball.worldProperties = this.world.add({
                 type:'sphere', // type of shape : sphere, box, cylinder
-                size:[1,1,1], // size of shape
+                size:[1], // size of shape
                 pos:this.ball.translation, // start position in degree
                 rot:this.ball.rotation, // start rotation in degree
-                move:true, // dynamic or statique
+                move: true, // dynamic or statique
                 density: 1,
                 friction: 0.2,
                 restitution: 0.2,
@@ -122,24 +126,6 @@ class App extends Application {
             });
 
         }
-
-        /*this.scene.traverse(node => {
-            if (node instanceof BallNode) {
-                let body = this.world.add({
-                    type:'sphere', // type of shape : sphere, box, cylinder
-                    size:[1,1,1], // size of shape
-                    pos:[0,0,0], // start position in degree
-                    rot:[0,0,90], // start rotation in degree
-                    move:true, // dynamic or statique
-                    density: 1,
-                    friction: 0.2,
-                    restitution: 0.2,
-                    belongsTo: 1, // The bits of the collision groups to which the shape belongs.
-                    collidesWith: 0xffffffff// The bits of the collision groups with which the shape collides.
-                });
-            }
-        });*/
-
 
     }
 
@@ -154,8 +140,10 @@ class App extends Application {
 
         if (document.pointerLockElement === this.canvas) {
             this.camera.enable();
+            this.ball.enable();
         } else {
             this.camera.disable();
+            this.ball.disable();
         }
     }
 
@@ -166,22 +154,20 @@ class App extends Application {
 
         if (this.camera) {
             this.camera.update(dt);
+            this.camera.updateTransform();
         }
 
-        if (this.physics) {
-            this.physics.update(dt);
-        }
         if(this.world) {
-            // oimo zracune nove pozicije v svetu
-            // for some reason kamero zamakne, ko jo toggelaš off ce je "this.world.step();" odkomentiran?
-            this.world.step();
-            //tukej neki spremenis verjetno najboljs v nekem novem pyhsics filu
+            // premikanje zoge
+            this.ball.move(dt, this.world);
 
+            let properties = this.ball.worldProperties;
 
-            this.ball.translation = [(this.ball_body.position.x), (this.ball_body.position.y), (this.ball_body.position.z)];
-            this.ball.rotation = [this.ball_body.orientation.x,this.ball_body.orientation.y,this.ball_body.orientation.z,this.ball_body.orientation.w];
+            this.ball.translation = [(properties.position.x), (properties.position.y), (properties.position.z)];
+            this.ball.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
 
             this.ball.updateMatrix();
+
             //TEST
             /*
             let q= this.ball.rotation
@@ -189,11 +175,6 @@ class App extends Application {
             this.ball.rotation = q;
             this.ball.updateMatrix();
             */
-
-
-
-
-
         }
 
 
