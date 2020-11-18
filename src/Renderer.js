@@ -235,10 +235,10 @@ export default class Renderer {
         );
 
         // zamenja program
-        let programBaller = this.programs.simple;
+        let programBaller = this.programs.baller;
         gl.useProgram(programBaller.program);
-        gl.uniformMatrix4fv(program.uniforms.uProjection, false, camera.projection);
-        gl.uniform1i(program.uniforms.uTexture, 0);
+        gl.uniformMatrix4fv(programBaller.uniforms.uProjection, false, camera.projection);
+        gl.uniform1i(programBaller.uniforms.uTexture, 0);
 
 
         this.renderNode(ball , matrix );
