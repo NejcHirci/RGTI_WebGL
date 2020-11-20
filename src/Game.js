@@ -11,7 +11,7 @@ import GLTFLoader from "./GLTF/GLTFLoader.js";
 import BallNode from "./GLTF/BallNode.js";
 import Model from "./Model.js";
 
-const vec3= glMatrix.vec3;
+const quat= glMatrix.quat;
 
 class App extends Application {
 
@@ -57,6 +57,7 @@ class App extends Application {
             if (node instanceof Camera) {
                 this.camera = new Camera();
                 this.camera = node;
+                quat.fromEuler(this.camera.rotation,this.camera.rotation[0],this.camera.rotation[1],this.camera.rotation[2] );
             }
         });
 
@@ -97,10 +98,10 @@ class App extends Application {
         })
 
         let x, y, z;
-        let r = 1.2;
+        let r = 1;
 
         // NOT SURE KAKO SE DODA TEREN V OIMO AMPAK V NJIHOVIH EXAMPLIH JE NEKI TAZGA
-        for ( var i = 0; i < vertices.length;  i += 12 ) {
+        for ( var i = 0; i < vertices.length;  i += 9 ) {
 
             x = vertices[ i ];
             y = vertices[ i+1 ] - r ;
@@ -152,10 +153,7 @@ class App extends Application {
         const dt = (this.time - this.startTime) * 0.001;
         this.startTime = this.time;
 
-        if (this.camera) {
-            this.camera.update(dt);
-            this.camera.updateTransform();
-        }
+
 
         if(this.world) {
             // premikanje zoge
@@ -176,6 +174,12 @@ class App extends Application {
             this.ball.updateMatrix();
             */
         }
+
+        if (this.camera) {
+            this.camera.update(dt);
+            this.camera.updateTransformQuat();
+        }
+
 
 
     }

@@ -113,14 +113,17 @@ export default class BallNode {
 
     move(dt, oimo_world) {
 
-        const c = this;
+        const camera = this.children[0];
+        // rotacija okoli Y osi
+        let r = quat.getAxisAngle([0,1,0], camera.rotation);
 
         const forward = vec3.set(vec3.create(),
-            -Math.sin(c.rotation[1]), 0, -Math.cos(c.rotation[1]));
+            -Math.sin(r), 0, -Math.cos(r));
 
 
         const right = vec3.set(vec3.create(),
-            Math.cos(c.rotation[1]), 0, -Math.sin(c.rotation[1]));
+            Math.cos(r), 0, -Math.sin(r));
+
 
         const up = vec3.create();
         vec3.cross(up, forward, right);

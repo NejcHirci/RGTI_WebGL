@@ -2,7 +2,7 @@
   "nodes": [
     {
       "type": "camera",
-      "translation": [0,0, 0],
+      "translation": [0,7, 0],
       "rotation": [0, 0, 0],
       "aabb": {
         "min": [-0.2, -0.2, -0.2],

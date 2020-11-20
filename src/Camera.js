@@ -5,6 +5,7 @@ import BallNode from "./GLTF/BallNode.js";
 const mat4 = glMatrix.mat4;
 const vec3 = glMatrix.vec3;
 const mat3 = glMatrix.vec3;
+const quat = glMatrix.quat;
 
 export default class Camera extends Node {
 
@@ -19,40 +20,88 @@ export default class Camera extends Node {
         this.keydownHandler = this.keydownHandler.bind(this);
         this.keyupHandler = this.keyupHandler.bind(this);
         this.keys = {};
-        this.ballTranslation = [0, 2, 5];
-        this.stationaryRotate= false;
+        this.offset = [0, 3, 5];
+
     }
 
     updateProjection() {
         mat4.perspective(this.projection, this.fov, this.aspect, this.near, this.far);
     }
+    addBallTranslation(){
+
+    }
 
     update(dt) {
 
+    }
 
-        // tole premakne kamero k zogi
-        this.translation = [
-            this.parent.translation[0] + this.ballTranslation[0],
-            this.parent.translation[1] +this.ballTranslation[1],
-            this.parent.translation[2] + this.ballTranslation[2]
+    poglejZogo() {
+        // kamera spremlja zogo
+        const ball = this.parent;
+
+
+        let direction = [
+            ball.translation[0] - this.translation[0],
+            ball.translation[1] - this.translation[1],
+            ball.translation[2] - this.translation[2]
         ];
 
-/*        // kamera spremlja zogo
-        if (!this.stationaryRotate) {
-            const ball = this.parent;
+        let right = [];
+        vec3.cross(right, direction,[0,1,0]);
 
-            let transform = mat4.create();
+        let left = [];
+        vec3.cross(left, [0,1,0], direction);
 
-            mat4.targetTo(transform, this.translation, ball.translation, [0, 1, 0]);
+        let up = [];
+        vec3.cross(up, right, direction);
 
-            let q = [];
-            mat4.getRotation(q, transform);
+        let transform = mat4.create();
+        mat4.targetTo(transform, this.translation, ball.translation, up);
 
-            this.rotation = q;
-            // ce odkometiras pol zakometiri pri zogi !!!
-            //this.move(dt);
-        }*/
+        let q = [];
+        mat4.getRotation(q, transform);
+        //q = this.toEulerAngles(q);
 
+        this.rotation = q;
+
+        this.right = mat3.normalize([],right);
+        this.left = mat3.normalize([],left);
+    }
+
+    toEulerAngles(quat) {
+        let angles = [];
+        let q = {};
+        q.x = quat[0];
+        q.y = quat[1];
+        q.z = quat[2];
+        q.w = quat[3];
+
+
+        // roll (x-axis rotation)
+        let sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+        let cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+        angles[0] = Math.atan2(sinr_cosp, cosr_cosp);
+
+        // pitch (y-axis rotation)
+        let sinp = 2 * (q.w * q.y - q.z * q.x);
+        if (Math.abs(sinp) >= 1){
+            if(sinp > 0) {
+                angles[1] = Math.PI / 2// use 90 degrees if out of range
+            } else {
+                angles[1] = - (Math.PI / 2) // use 90 degrees if out of range
+            }
+
+        } else {
+            angles[1] = Math.asin(sinp);
+        }
+
+        // yaw (z-axis rotation)
+        let siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+        let cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+
+        angles[2] = Math.atan2(siny_cosp, cosy_cosp);
+        //console.log([angles[0] * 180 / Math.PI, angles[1] * 180 / Math.PI, angles[2] * 180 / Math.PI]);
+        return angles;
     }
 
     move(dt) {
@@ -115,15 +164,12 @@ export default class Camera extends Node {
     }
 
     enable() {
-        // ce vklopis kamera ne sledi vec zogi
-        this.stationaryRotate = true;
         document.addEventListener('mousemove', this.mousemoveHandler);
         document.addEventListener('keydown', this.keydownHandler);
         document.addEventListener('keyup', this.keyupHandler);
     }
 
     disable() {
-        this.stationaryRotate = false;
         document.removeEventListener('mousemove', this.mousemoveHandler);
         document.removeEventListener('keydown', this.keydownHandler);
         document.removeEventListener('keyup', this.keyupHandler);
@@ -135,32 +181,50 @@ export default class Camera extends Node {
 
     mousemoveHandler(e) {
 
-        // TODO: ko igralec drzi alt se stationary rotate nastavi na true
-       if (this.stationaryRotate) {
-           const dx = e.movementX;
-           const dy = e.movementY;
-
-           this.rotation[0] -= dy * this.mouseSensitivity;
-           this.rotation[1] -= dx * this.mouseSensitivity;
-
-           const pi = Math.PI;
-           const twopi = pi * 2;
-           const halfpi = pi / 2;
-
-           if (this.rotation[0] > halfpi) {
-               this.rotation[0] = halfpi;
-           }
-           if (this.rotation[0] < -halfpi) {
-               this.rotation[0] = -halfpi;
-           }
-
-           this.rotation[1] = ((this.rotation[1] % twopi) + twopi) % twopi;
-       } else {
-
            // TODO: naredi nestacionarno rotiranje okoli zoge
 
+        const dy = e.movementY;
 
-       }
+        if (dy !== NaN) {
+
+            let s = 0.07;
+            let angle = 0.000001;
+            let radius = 3;
+
+            let rotation = quat.create();
+
+
+            quat.rotateY(rotation, this.rotation, angle);
+
+            let r = quat.getAxisAngle([0,1,0], rotation);
+
+            const forward = vec3.set(vec3.create(),
+                -Math.sin(r), 0, -Math.cos(r));
+
+            console.log(r);
+
+            mat3.scale(forward, forward, radius);
+
+
+            vec3.sub(this.offset, [0,this.offset[1],0], forward);
+
+            this.translation = [
+                this.parent.translation[0] + this.offset[0],
+                this.parent.translation[1] + this.offset[1],
+                this.parent.translation[2] + this.offset[2]
+            ];
+
+            //this.move(dt);
+            this.poglejZogo();
+
+
+
+           //this.poglejZogo();
+
+        }
+
+
+
 
     }
 
