@@ -19,6 +19,7 @@ export default class Node {
 
     updateTransform() {
         const t = this.transform;
+        console.log(this.rotation);
         const degrees = this.rotation.map(x => x * 180 / Math.PI);
         const q = quat.fromEuler(quat.create(), ...degrees);
         const v = vec3.clone(this.translation);

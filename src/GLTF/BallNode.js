@@ -154,7 +154,7 @@ export default class BallNode {
         }
 
         // 2: update velocity
-        vec3.scaleAndAdd(linearVelocity , linearVelocity , acc, dt * this.acceleration);
+        vec3.scaleAndAdd(linearVelocity , linearVelocity , acc, dt * this.acceleration * 0.5);
 
         // ce je igralec stisnil kaksen gumb spremeni hitrost zoge
         this.worldProperties.linearVelocity.x = linearVelocity[0];

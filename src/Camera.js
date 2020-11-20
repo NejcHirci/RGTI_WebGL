@@ -37,7 +37,7 @@ export default class Camera extends Node {
             this.parent.translation[2] + this.ballTranslation[2]
         ];
 
-        // kamera spremlja zogo
+/*        // kamera spremlja zogo
         if (!this.stationaryRotate) {
             const ball = this.parent;
 
@@ -51,7 +51,7 @@ export default class Camera extends Node {
             this.rotation = q;
             // ce odkometiras pol zakometiri pri zogi !!!
             //this.move(dt);
-        }
+        }*/
 
     }
 

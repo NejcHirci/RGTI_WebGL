@@ -97,7 +97,7 @@ class App extends Application {
         })
 
         let x, y, z;
-        let r = 1;
+        let r = 1.2;
 
         // NOT SURE KAKO SE DODA TEREN V OIMO AMPAK V NJIHOVIH EXAMPLIH JE NEKI TAZGA
         for ( var i = 0; i < vertices.length;  i += 12 ) {
@@ -106,7 +106,7 @@ class App extends Application {
             y = vertices[ i+1 ] - r ;
             z = vertices[ i+2 ];
 
-            this.world.add({type:'sphere', size: [1], pos:[x,y,z] })
+            this.world.add({type:'sphere', size: [r], pos:[x,y,z] })
 
         }
 
@@ -114,12 +114,12 @@ class App extends Application {
             // v worldProperties se belezijo vsi trenutni physicsi o zogi
             this.ball.worldProperties = this.world.add({
                 type:'sphere', // type of shape : sphere, box, cylinder
-                size:[1], // size of shape
+                size:[1.2], // size of shape
                 pos:this.ball.translation, // start position in degree
                 rot:this.ball.rotation, // start rotation in degree
                 move: true, // dynamic or statique
-                density: 1,
-                friction: 0.2,
+                density: 2,
+                friction: 0.8,
                 restitution: 0.2,
                 belongsTo: 1, // The bits of the collision groups to which the shape belongs.
                 collidesWith: 0xffffffff// The bits of the collision groups with which the shape collides.

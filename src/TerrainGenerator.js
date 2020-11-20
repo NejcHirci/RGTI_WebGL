@@ -184,56 +184,6 @@ export default class TerrainGenerator {
             }
         }
 
-        // Calculate surface normals
-        let v = mesh.vertices;
-        let ind = mesh.indices;
-
-        for (let y=0; y < this.mapSize; y++) {
-            for (let x = 0; x < this.mapSize; x++) {
-
-            }
-        }
-
-        // We sum normals from all triangles
-        /*for (let i=0; i < mesh.indices.length - 2; i+=3) {
-            let a = vec3.fromValues(v[ind[i]], v[ind[i]+2], v[ind[i]+1]);
-            let b = vec3.fromValues(v[ind[i+1]], v[ind[i+1]+2], v[ind[i+1]+1]);
-            let c = vec3.fromValues(v[ind[i+2]], v[ind[i+2]+2], v[ind[i+2]+1]);
-
-            let n = vec3.create();
-            let sub1 = vec3.create();
-            let sub2 = vec3.create();
-
-            vec3.cross(n, vec3.sub(sub1, b, a), vec3.sub(sub2, c, a));
-
-            // Normal in A
-            mesh.normals[ind[i]] += n[0];
-            mesh.normals[ind[i]+1] += n[2];
-            mesh.normals[ind[i]+2] += n[1];
-
-            // Normal in B
-            mesh.normals[ind[i+1]] += n[0];
-            mesh.normals[ind[i+1]+1] += n[2];
-            mesh.normals[ind[i+1]+2] += n[1];
-
-            // Normal in C
-            mesh.normals[ind[i+2]] += n[0];
-            mesh.normals[ind[i+2]+1] += n[2];
-            mesh.normals[ind[i+2]+2] += n[1];
-        }
-
-        // We normalize normals for each vertex
-        console.log(mesh.normals.length);
-        for (let i=0; i < mesh.normals.length - 2; i+=3) {
-            let norm = vec3.fromValues(mesh.normals[i], mesh.normals[i+1], mesh.normals[i+2]);
-            norm = vec3.normalize(vec3.create(), norm);
-            mesh.normals[i] = norm[0];
-            mesh.normals[i+1] = norm[2];
-            mesh.normals[i+2] = norm[1];
-        }
-        console.log(mesh);
-         */
-
         return mesh;
     }
 
