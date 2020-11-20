@@ -1,15 +1,13 @@
 import Application from './Application.js';
 
 import Renderer from './Renderer.js';
-import Physics from './Physics.js';
 import Camera from './Camera.js';
 import SceneLoader from './SceneLoader.js';
 import SceneBuilder from './SceneBuilder.js';
-import TerrainGenerator from "./TerrainGenerator.js";
 import Light from "./Light.js";
 import GLTFLoader from "./GLTF/GLTFLoader.js";
 import BallNode from "./GLTF/BallNode.js";
-import Model from "./Model.js";
+import LevelGenerator from "./LevelGenerator.js";
 
 const quat= glMatrix.quat;
 
@@ -40,24 +38,17 @@ class App extends Application {
         const baller = await this.gltfLoader.loadBall(this.gltfLoader.defaultScene);
 
         const scene = await new SceneLoader().loadScene(uri);
-        this.terrainGenerator = new TerrainGenerator(241, 50, 5, 0.2, 2, 20);
-        const seed = 82;
-
-        const heightMap = this.terrainGenerator.generateNoiseMap(seed);
-        scene.meshes.push(this.terrainGenerator.generateMesh(heightMap));
-        scene.textures.push(this.terrainGenerator.generateTexture(heightMap));
-
         const builder = new SceneBuilder(scene);
         this.scene = builder.build();
-        this.physics = new Physics(this.scene);
+
+        this.levelGenerator = new LevelGenerator(82, this.scene);
+        this.levelGenerator.next();
 
         // Find first camera.
         this.camera = null;
         this.scene.traverse(node => {
             if (node instanceof Camera) {
-                this.camera = new Camera();
-                this.camera = node;
-                quat.fromEuler(this.camera.rotation,this.camera.rotation[0],this.camera.rotation[1],this.camera.rotation[2] );
+                this.camera = new Camera({translation: [0, 2, 4]});
             }
         });
 
@@ -71,15 +62,14 @@ class App extends Application {
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
 
-        //this.camera.addChild(this.ball);
-
         this.renderer.prepare(this.scene, this.ball);
 
-        this.initOimoPhysics();
+        this.initPhysics();
     }
 
-    initOimoPhysics(){
+    initPhysics(){
 
+        // Create physics world
         this.world = new OIMO.World({
             timestep: 1/60,
             iterations: 8,
@@ -90,25 +80,17 @@ class App extends Application {
             gravity: [0,-9.8,0]
         });
 
-        let vertices = {};
-        this.scene.traverse(node => {
-            if (node instanceof Model) {
-                vertices = node.mesh.vertices;
-            }
-        })
+        // Create sphere collison for terrain
+        let x,y,z;
+        let r = 1.2;
+        let terrainMesh = this.levelGenerator.levelNode.mesh;
+        for ( let i = 0; i < terrainMesh.vertices.length;  i += 12 ) {
 
-        let x, y, z;
-        let r = 1;
-
-        // NOT SURE KAKO SE DODA TEREN V OIMO AMPAK V NJIHOVIH EXAMPLIH JE NEKI TAZGA
-        for ( var i = 0; i < vertices.length;  i += 9 ) {
-
-            x = vertices[ i ];
-            y = vertices[ i+1 ] - r ;
-            z = vertices[ i+2 ];
+            x = terrainMesh.vertices[ i ];
+            y = terrainMesh.vertices[ i+1 ] - r;
+            z = terrainMesh.vertices[ i+2 ];
 
             this.world.add({type:'sphere', size: [r], pos:[x,y,z] })
-
         }
 
         if (this.ball) {
@@ -156,7 +138,6 @@ class App extends Application {
 
 
         if(this.world) {
-            // premikanje zoge
             this.ball.move(dt, this.world);
 
             let properties = this.ball.worldProperties;
@@ -165,19 +146,10 @@ class App extends Application {
             this.ball.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
 
             this.ball.updateMatrix();
-
-            //TEST
-            /*
-            let q= this.ball.rotation
-            quat.rotateY(q,q,0.07 );
-            this.ball.rotation = q;
-            this.ball.updateMatrix();
-            */
         }
 
         if (this.camera) {
-            this.camera.update(dt);
-            this.camera.updateTransformQuat();
+            this.camera.updateTransform();
         }
 
 

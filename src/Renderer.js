@@ -196,8 +196,7 @@ export default class Renderer {
         let matrix = mat4.create();
         let matrixStack = [];
 
-        let viewMatrix = camera.getGlobalTransform();
-        mat4.invert(viewMatrix, viewMatrix);
+        let viewMatrix = mat4.invert(mat4.create(), camera.getGlobalTransform());
         mat4.copy(matrix, viewMatrix);
         gl.uniformMatrix4fv(program.uniforms.uProjection, false, camera.projection);
 

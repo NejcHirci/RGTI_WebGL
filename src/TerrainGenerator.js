@@ -1,5 +1,4 @@
 import Mesh from "./Mesh.js";
-import {Bezier} from "../lib/bezier.js"
 
 const vec3 = glMatrix.vec3;
 const vec2 = glMatrix.vec2;
@@ -36,15 +35,11 @@ export default class TerrainGenerator {
         };
         this.heightMult = heightMult;
         this.falloffMap = this.generateFalloffMap();
-        this.bezier = new Bezier(
-            {x: 0, y:0}, {x:0.35, y:0}, {x:0.50, y: 0},{x: 1, y:1}
+        this.spline = new Spline([
+            [0, 0], [0.40, 0], [0.5, 0], [0.6, 0.4], [1, 0.7]]
         );
     }
 
-    /**
-     * @param {number} seed - random seed for noise generation
-     * @return {Array} noiseMap
-     */
     generateNoiseMap(seed) {
         let noiseMap = [];
         noise.seed(seed);
@@ -118,20 +113,6 @@ export default class TerrainGenerator {
         return noiseMap;
     }
 
-    /**
-     *     {
-      "type": "model",
-      "mesh": 0,
-      "texture": 0,
-      "aabb": {
-        "min": [-1, -0.1, -1],
-        "max": [1, 0.1, 1]
-      },
-      "translation": [3, 0.1, -1],
-      "rotation": [0, 1, 0],
-      "scale": [1, 0.1, 1]
-    }
-     */
     generateMesh (noiseMap) {
 
         let mesh = new Mesh(Mesh.defaults);
@@ -146,7 +127,7 @@ export default class TerrainGenerator {
         let vertInd = 0;
         for (let y=0; y < this.mapSize; y++) {
             for (let x=0; x < this.mapSize; x++) {
-                mesh.vertices.push(topLeftX + x, this.bezier.get(noiseMap[y][x]).y * this.heightMult, topLeftZ - y);
+                mesh.vertices.push(topLeftX + x, this.spline.ptForT(noiseMap[y][x])[1] * this.heightMult, topLeftZ - y);
                 mesh.texcoords.push(x / this.mapSize, y / this.mapSize);
 
                 if (x < this.mapSize - 1 && y < this.mapSize -1) {
@@ -158,16 +139,16 @@ export default class TerrainGenerator {
 
                 if(x > 0 && y > 0 && x < this.mapSize-1 && y < this.mapSize-1) {
 
-                    nw = this.bezier.get(noiseMap[y-1][x-1]).y * this.heightMult;
-                    n = this.bezier.get(noiseMap[y-1][x]).y * this.heightMult;
-                    ne = this.bezier.get(noiseMap[y-1][x+1]).y * this.heightMult;
+                    nw = this.spline.ptForT(noiseMap[y-1][x-1])[1] * this.heightMult;
+                    n = this.spline.ptForT(noiseMap[y-1][x])[1] * this.heightMult;
+                    ne = this.spline.ptForT(noiseMap[y-1][x+1])[1] * this.heightMult;
 
-                    e = this.bezier.get(noiseMap[y][x+1]).y * this.heightMult;
-                    w = this.bezier.get(noiseMap[y][x-1]).y * this.heightMult;
+                    e = this.spline.ptForT(noiseMap[y][x+1])[1] * this.heightMult;
+                    w = this.spline.ptForT(noiseMap[y][x-1])[1] * this.heightMult;
 
-                    sw = this.bezier.get(noiseMap[y+1][x-1]).y * this.heightMult;
-                    s = this.bezier.get(noiseMap[y+1][x]).y * this.heightMult;
-                    se = this.bezier.get(noiseMap[y+1][x+1]).y * this.heightMult;
+                    sw = this.spline.ptForT(noiseMap[y+1][x-1])[1] * this.heightMult;
+                    s = this.spline.ptForT(noiseMap[y+1][x])[1] * this.heightMult;
+                    se = this.spline.ptForT(noiseMap[y+1][x+1])[1] * this.heightMult;
 
                     dydx = ((ne + 2 * e + se) - (nw + 2 * w + sw));
                     dydz = ((sw + 2 * s + se) - (nw + 2 * n + ne));

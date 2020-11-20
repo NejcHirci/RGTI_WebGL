@@ -26,16 +26,8 @@ export default class Node {
         mat4.fromRotationTranslationScale(t, q, v, s);
     }
 
-    updateTransformQuat() {
-        const t = this.transform;
-        const q = this.rotation;
-        const v = vec3.clone(this.translation);
-        const s = vec3.clone(this.scale);
-        mat4.fromRotationTranslationScale(t, q, v, s);
-    }
-
     getGlobalTransform() {
-        if (!this.parent || this.parent instanceof BallNode) {
+        if (!this.parent) {
             return mat4.clone(this.transform);
         } else {
             let transform = this.parent.getGlobalTransform();
@@ -67,11 +59,8 @@ export default class Node {
 }
 
 Node.defaults = {
+    name: "",
     translation: [0, 0, 0],
     rotation: [0, 0, 0],
-    scale: [1, 1, 1],
-    aabb: {
-        min: [0, 0, 0],
-        max: [0, 0, 0],
-    },
+    scale: [1, 1, 1]
 };
