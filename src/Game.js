@@ -48,7 +48,7 @@ class App extends Application {
         this.camera = null;
         this.scene.traverse(node => {
             if (node instanceof Camera) {
-                this.camera = new Camera({translation: [0, 2, 4]});
+                this.camera = new Camera(node);
             }
         });
 
@@ -107,9 +107,7 @@ class App extends Application {
                 belongsTo: 1, // The bits of the collision groups to which the shape belongs.
                 collidesWith: 0xffffffff// The bits of the collision groups with which the shape collides.
             });
-
         }
-
     }
 
     enableCamera() {
@@ -150,6 +148,7 @@ class App extends Application {
 
         if (this.camera) {
             this.camera.updateTransform();
+
         }
 
 
