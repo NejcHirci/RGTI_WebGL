@@ -9,8 +9,6 @@ import GLTFLoader from './GLTF/GLTFLoader.js';
 import BallNode from './GLTF/BallNode.js';
 import LevelGenerator from './LevelGenerator.js';
 
-
-
 const vec3 = glMatrix.vec3;
 const quat = glMatrix.quat;
 const mat3= glMatrix.mat3;
@@ -46,7 +44,11 @@ class App extends Application {
 
         // load the baller
         await this.gltfLoader.load('../../public/models/baller/chadBaller.gltf');
-        const baller = await this.gltfLoader.loadBall(this.gltfLoader.defaultScene);
+        this.gltfScene = await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
+
+        // load other pipe
+        await this.gltfLoader.load('../../public/models/pipe/pipe.gltf');
+        this.pipe= await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
 
         const scene = await new SceneLoader().loadScene(uri);
         const builder = new SceneBuilder(scene);
@@ -63,12 +65,20 @@ class App extends Application {
             }
         });
 
-        // its not a baller anymore :(
-        if (baller) {
-            this.ball = new BallNode();
-            this.ball = baller;
-            this.ball.addChild(this.camera);
-        }
+        this.scene.traverse(node => {
+            if (node instanceof Camera) {
+                this.camera = new Camera(node);
+            }
+        });
+
+        this.gltfScene.traverse(node => {
+            if (node instanceof BallNode) {
+                this.ball = new BallNode();
+                this.ball = node;
+                this.ball.addChild(this.camera);
+            }
+        });
+
 
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
@@ -106,26 +116,6 @@ class App extends Application {
                 y = terrainMesh.vertices[ i+1 ] - r;
                 z = terrainMesh.vertices[ i+2 ];
 
-                /*let n = vec3.fromValues(terrainMesh.normals[i], terrainMesh.normals[i+1], terrainMesh.normals[i+2])
-                let l = vec3.create();
-                vec3.cross(l, n,[0,1,0])
-
-                let k = vec3.create();
-                vec3.cross(k, l, n);
-
-                let ex = Math.atan2(n[2],l[2]);
-                let ey = Math.atan2(-k[2],Math.sqrt(Math.pow(k[2],2) + Math.pow(l[2],2)));
-                let ez = Math.atan2(k[1],k[0]);
-                let q = quat.create();
-                quat.fromEuler(q,ex,ey,ez);
-                */
-                /*
-                let ex = Math.atan2(n[2],l[2]);
-                let ey = Math.atan2(-k[2],Math.sqrt(Math.pow(k[2],2) + Math.pow(l[2],2)));
-                let ez = Math.atan2(k[1],k[0]);
-                let q = quat.create();
-                quat.fromEuler(q,ex,ey,ez); */
-
                 let sphere =this.world.add({
                     type:'sphere',
                     size:[r],
@@ -140,7 +130,7 @@ class App extends Application {
 
             const size = this.levelGenerator.terrainGen.mapSize;
 
-            let x = this.world.add({type:'box', size:[size, 1 , size], pos:[0,-1.4,0], move:false, name: objectTypes.WATER});
+            let x = this.world.add({type:'box', size:[size, 1 , size], pos:[0,-1,0], move:false, name: objectTypes.WATER});
             console.log(x);
         } else {
             Error.log("Terrain generator missing!");
@@ -166,9 +156,9 @@ class App extends Application {
             // v worldProperties se belezijo vsi trenutni physicsi o zogi
             this.camera.worldProperties = this.world.add({
                 type:'sphere', // type of shape : sphere, box, cylinder
-                size:[1.2], // size of shape
-                pos:this.ball.translation, // start position in degree
-                rot:this.ball.rotation, // start rotation in degree
+                size:[5], // size of shape
+                pos:this.camera.translation, // start position in degree
+                rot:this.camera.rotation, // start rotation in degree
                 move: false, // dynamic or statique
                 density: 2,
                 friction: 0.8,
@@ -202,13 +192,10 @@ class App extends Application {
         const dt = (this.time - this.startTime) * 0.001;
         this.startTime = this.time;
 
-
-
         if(this.world) {
-            this.ball.move(dt, this.world);
+            this.ball.move(dt);
 
             let properties = this.ball.worldProperties;
-            console.log(properties);
 
             this.ball.translation = [(properties.position.x), (properties.position.y), (properties.position.z)];
             this.ball.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
@@ -218,8 +205,11 @@ class App extends Application {
 
         if (this.camera) {
             this.camera.updateTransform();
-            //console.log(this.camera.worldProperties);
         }
+        if (this.world) {
+            this.world.step();
+        }
+
 
     }
 

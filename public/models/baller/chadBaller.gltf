@@ -15,7 +15,7 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "Soccer_Ball",
+            "name" : "baller",
             "rotation" : [
                 0.4130667448043823,
                 0.12670622766017914,
@@ -29,7 +29,7 @@
             ],
             "translation" : [
                  3,
-                10,
+                15,
                 -5
             ]
         }

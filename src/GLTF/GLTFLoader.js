@@ -7,6 +7,7 @@ import Primitive from './Primitive.js';
 import Mesh from './Mesh.js';
 import BallNode from './BallNode.js';
 import Scene from './Scene.js';
+import GLTFNode from "./GLTFNode.js";
 
 const vec3 = glMatrix.vec3;
 const vec4 = glMatrix.vec4;
@@ -243,31 +244,6 @@ export default class GLTFLoader {
         return mesh;
     }
 
-    async loadNode(nameOrIndex, camera= false) {
-        const gltfSpec = this.findByNameOrIndex(this.gltf.nodes, nameOrIndex);
-        if (this.cache.has(gltfSpec)) {
-            return this.cache.get(gltfSpec);
-        }
-
-        let options = { ...gltfSpec, children: [] };
-        if (gltfSpec.children) {
-            for (const nodeIndex of gltfSpec.children) {
-                const node = await this.loadNode(nodeIndex);
-                options.children.push(node);
-            }
-        }
-        if (gltfSpec.camera !== undefined || camera) {
-            options.camera = await this.loadCamera(gltfSpec.camera);
-        }
-        if (gltfSpec.mesh !== undefined) {
-            options.mesh = await this.loadMesh(gltfSpec.mesh);
-        }
-
-        const node = new BallNode(options);
-        this.cache.set(gltfSpec, node);
-        return node;
-    }
-
     async loadScene(nameOrIndex) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.scenes, nameOrIndex);
         if (this.cache.has(gltfSpec)) {
@@ -287,35 +263,35 @@ export default class GLTFLoader {
         return scene;
     }
 
-    async loadBall(nameOrIndex) {
-        const gltfSpec = this.findByNameOrIndex(this.gltf.scenes, nameOrIndex);
-        if (this.cache.has(gltfSpec)) {
-            return this.cache.get(gltfSpec);
-        }
-
-        let baller = null;
-        if (gltfSpec.nodes.length == 1) {
-            baller = await this.loadBallNode(0);
-        }
-        this.cache.set(gltfSpec, baller);
-        return baller;
-    }
-
-    async loadBallNode(nameOrIndex) {
+    async loadNode(nameOrIndex) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.nodes, nameOrIndex);
         if (this.cache.has(gltfSpec)) {
             return this.cache.get(gltfSpec);
         }
 
         let options = { ...gltfSpec, children: [] };
+        if (gltfSpec.children) {
+            for (const nodeIndex of gltfSpec.children) {
+                const node = await this.loadNode(nodeIndex);
+                options.children.push(node);
+            }
+        }
 
         if (gltfSpec.mesh !== undefined) {
             options.mesh = await this.loadMesh(gltfSpec.mesh);
         }
 
-        const node = new BallNode(options);
+        let node;
+
+        if (gltfSpec.name === "baller" ){
+            node = new BallNode(options);
+        } else {
+            node = new GLTFNode(options);
+        }
+
         this.cache.set(gltfSpec, node);
         return node;
     }
+
 
 }

@@ -57,11 +57,20 @@ export default class Camera extends Node {
         const tBall = mat4.fromTranslation(mat4.create(), v);
         const t = mat4.clone(this.transform);
 
-        let out = mat4.mul(t, tBall, t);
+        const out = mat4.mul(t, tBall, t);
 
-        if (this.worldProperties != null) {
-             mat4.getTranslation(this.worldProperties.position, out);
-        }
+        /*if (this.worldProperties != null) {
+            let pos = mat3.create();
+             mat4.getTranslation(pos, out);
+            console.log(this.worldProperties.position);
+            console.log("COLLIDES:",this.worldProperties.numContacts);
+
+            this.worldProperties.position = {
+               x: pos[0],
+               y: pos[1],
+               z: pos[2]
+            }
+        }*/
         return out;
     }
 
