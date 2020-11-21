@@ -6,6 +6,14 @@ const quat = glMatrix.quat;
 import Node from '../Node.js';
 import Utils from "../Utils.js";
 
+
+const objectTypes = {
+    WATER: 'water',
+    LAND: 'land',
+    BALL: 'ball',
+    CAMERA: 'camera'
+}
+
 export default class BallNode {
 
     constructor(options = {}) {
@@ -46,6 +54,7 @@ export default class BallNode {
         this.keydownHandler = this.keydownHandler.bind(this);
         this.keyupHandler = this.keyupHandler.bind(this);
         this.keys = {};
+        this.jumping = false;
     }
 
     updateTransform() {
@@ -125,7 +134,7 @@ export default class BallNode {
 
 
         const up = vec3.create();
-        vec3.cross(up, forward, right);
+        vec3.cross(up, right, forward);
         vec3.normalize(up, up);
 
         const linearVelocity = [
@@ -148,28 +157,83 @@ export default class BallNode {
         if (this.keys['KeyA']) {
             vec3.sub(acc, acc, right);
         }
-        if (this.keys['KeyQ']) {
-            vec3.add(acc, acc, up);
+        if (this.keys['Space']) {
+            if (!this.jumping) {
+                vec3.add(acc, acc, up);
+                this.jumping = true;
+
+                setTimeout(() => {
+                    this.jumping = false;
+                }, 1000)
+                vec3.scale(acc, acc, this.jumpAcceleration);
+            }
         }
-        if (this.keys['KeyE']) {
-            vec3.sub(acc, acc, up);
+
+        if(this.isInContactWith([objectTypes.WATER])) {
+            if (!this.jumping) {
+                vec3.add(acc, acc, up);
+                this.jumping = true;
+
+                setTimeout(() => {
+                    this.jumping = false;
+                }, 400)
+                vec3.scale(acc, acc, this.jumpAcceleration);
+            }
         }
 
         // 2: update velocity
         vec3.scaleAndAdd(linearVelocity , linearVelocity , acc, dt * this.acceleration * 0.5);
 
-        // ce je igralec stisnil kaksen gumb spremeni hitrost zoge
-        this.worldProperties.linearVelocity.x = linearVelocity[0];
-        this.worldProperties.linearVelocity.y = linearVelocity[1];
-        this.worldProperties.linearVelocity.z = linearVelocity[2];
+        if (this.worldProperties.numContacts > 0 && this.isInContactWith([objectTypes.WATER, objectTypes.LAND])) {
+            // ce je igralec stisnil kaksen gumb spremeni hitrost zoge
+            this.worldProperties.linearVelocity.x = linearVelocity[0];
+            this.worldProperties.linearVelocity.y = linearVelocity[1];
+            this.worldProperties.linearVelocity.z = linearVelocity[2];
+        }
 
         // preracuna pozicije zoge v naslednjem koraku
         oimo_world.step();
+
+
+    }
+
+    // prejme string array imen objektov za katere zelimo preveriti collision
+    // collidesWithAll nastaviš na true če hočeš da zoga collida z vsemi podanimi objekti
+    isInContactWith(names, collidesWithAll = false) {
+      let collisionChecked = [];
+      let numChecked = 0;
+      let numToCheck = names.length;
+
+      if (this.worldProperties !== null) {
+          let current = this.worldProperties.contactLink;
+
+          while( current !== null) {
+              for(let n in names) {
+                  if (current.body.name === names[n]) {
+                      if (!collidesWithAll) {
+                          return true;
+                      } else if(collisionChecked[names[n]] !== true) {
+                          collisionChecked[names[n]] = true;
+                          numChecked++;
+                          if (numChecked === numToCheck) {
+                             return true;
+                          }
+                      }
+                  }
+              }
+              current = current.next;
+          }
+      }
+
+      return false;
     }
 
 }
 
+
+
 BallNode.defaults = {
     velocity         : [0, 0, 0],
-    acceleration     : 20
+    acceleration     : 20,
+    jumpAcceleration : 25
 };

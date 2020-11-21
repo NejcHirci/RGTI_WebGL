@@ -40,7 +40,7 @@ export default class Camera extends Node {
         }
     }
 
-    updateTransform() {
+     updateTransform() {
         const t = this.transform
         const degrees = this.rotation.map(x => x * 180 / Math.PI);
         const q1 = quat.fromEuler(quat.create(), ...degrees);
@@ -56,7 +56,13 @@ export default class Camera extends Node {
         const v = vec3.clone(this.parent.translation);
         const tBall = mat4.fromTranslation(mat4.create(), v);
         const t = mat4.clone(this.transform);
-        return mat4.mul(t, tBall, t);
+
+        let out = mat4.mul(t, tBall, t);
+
+        if (this.worldProperties != null) {
+             mat4.getTranslation(this.worldProperties.position, out);
+        }
+        return out;
     }
 
     mousemoveHandler(e) {
@@ -64,24 +70,26 @@ export default class Camera extends Node {
     }
 
     rotate(e){
-        const dx = e.movementX;
-        const dy = e.movementY;
+        if(this.worldProperties && this.worldProperties.numContacts === 0){
+            const dx = e.movementX;
+            const dy = e.movementY;
 
-        this.rotation[0] += dy * this.mouseSensitivity;
-        this.rotation[1] -= dx * this.mouseSensitivity;
+            this.rotation[0] += dy * this.mouseSensitivity;
+            this.rotation[1] -= dx * this.mouseSensitivity;
 
-        const pi = Math.PI;
-        const twopi = pi * 2;
-        const halfpi = pi / 2;
+            const pi = Math.PI;
+            const twopi = pi * 2;
+            const halfpi = pi / 2;
 
-        if (this.rotation[0] > halfpi) {
-            this.rotation[0] = halfpi;
+            if (this.rotation[0] > halfpi) {
+                this.rotation[0] = halfpi;
+            }
+            if (this.rotation[0] < -halfpi) {
+                this.rotation[0] = -halfpi;
+            }
+
+            this.rotation[1] = ((this.rotation[1] % twopi) + twopi) % twopi;
         }
-        if (this.rotation[0] < -halfpi) {
-            this.rotation[0] = -halfpi;
-        }
-
-        this.rotation[1] = ((this.rotation[1] % twopi) + twopi) % twopi;
     }
 
     keydownHandler(e) {
@@ -100,7 +108,7 @@ Camera.defaults = {
     near             : 0.01,
     far              : 100,
     velocity         : [0, 0, 0],
-    mouseSensitivity : 0.004,
+    mouseSensitivity : 0.002,
     maxSpeed         : 10,
     friction         : 0.2,
     acceleration     : 20

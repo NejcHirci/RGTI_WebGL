@@ -4,12 +4,23 @@ import Renderer from './Renderer.js';
 import Camera from './Camera.js';
 import SceneLoader from './SceneLoader.js';
 import SceneBuilder from './SceneBuilder.js';
-import Light from "./Light.js";
-import GLTFLoader from "./GLTF/GLTFLoader.js";
-import BallNode from "./GLTF/BallNode.js";
-import LevelGenerator from "./LevelGenerator.js";
+import Light from './Light.js';
+import GLTFLoader from './GLTF/GLTFLoader.js';
+import BallNode from './GLTF/BallNode.js';
+import LevelGenerator from './LevelGenerator.js';
 
-const quat= glMatrix.quat;
+
+
+const vec3 = glMatrix.vec3;
+const quat = glMatrix.quat;
+const mat3= glMatrix.mat3;
+
+const objectTypes = {
+    WATER: 'water',
+    LAND: 'land',
+    BALL: 'ball',
+    CAMERA: 'camera'
+}
 
 class App extends Application {
 
@@ -67,6 +78,8 @@ class App extends Application {
         this.initPhysics();
     }
 
+
+
     initPhysics(){
 
         // Create physics world
@@ -82,30 +95,86 @@ class App extends Application {
 
         // Create sphere collison for terrain
         let x,y,z;
-        let r = 1.2;
+        let r = 0.05;
         let terrainMesh = this.levelGenerator.levelNode.mesh;
-        for ( let i = 0; i < terrainMesh.vertices.length;  i += 12 ) {
+        console.log(this.levelGenerator);
+        for ( let i = 0; i < terrainMesh.vertices.length;  i += 3 ) {
 
-            x = terrainMesh.vertices[ i ];
-            y = terrainMesh.vertices[ i+1 ] - r;
-            z = terrainMesh.vertices[ i+2 ];
+            if (terrainMesh.vertices[ i+1 ] > 0.75) {
 
-            this.world.add({type:'sphere', size: [r], pos:[x,y,z] })
+                x = terrainMesh.vertices[ i ];
+                y = terrainMesh.vertices[ i+1 ] - r;
+                z = terrainMesh.vertices[ i+2 ];
+
+                /*let n = vec3.fromValues(terrainMesh.normals[i], terrainMesh.normals[i+1], terrainMesh.normals[i+2])
+                let l = vec3.create();
+                vec3.cross(l, n,[0,1,0])
+
+                let k = vec3.create();
+                vec3.cross(k, l, n);
+
+                let ex = Math.atan2(n[2],l[2]);
+                let ey = Math.atan2(-k[2],Math.sqrt(Math.pow(k[2],2) + Math.pow(l[2],2)));
+                let ez = Math.atan2(k[1],k[0]);
+                let q = quat.create();
+                quat.fromEuler(q,ex,ey,ez);
+                */
+                /*
+                let ex = Math.atan2(n[2],l[2]);
+                let ey = Math.atan2(-k[2],Math.sqrt(Math.pow(k[2],2) + Math.pow(l[2],2)));
+                let ez = Math.atan2(k[1],k[0]);
+                let q = quat.create();
+                quat.fromEuler(q,ex,ey,ez); */
+
+                let sphere =this.world.add({
+                    type:'sphere',
+                    size:[r],
+                    pos:[x,y,z],
+                    name: objectTypes.LAND
+                })
+
+            }
+        }
+        // add plane ust under water
+        if (this.levelGenerator.terrainGen) {
+
+            const size = this.levelGenerator.terrainGen.mapSize;
+
+            let x = this.world.add({type:'box', size:[size, 1 , size], pos:[0,-1.4,0], move:false, name: objectTypes.WATER});
+            console.log(x);
+        } else {
+            Error.log("Terrain generator missing!");
         }
 
         if (this.ball) {
             // v worldProperties se belezijo vsi trenutni physicsi o zogi
             this.ball.worldProperties = this.world.add({
                 type:'sphere', // type of shape : sphere, box, cylinder
-                size:[1.2], // size of shape
+                size:[0.95], // size of shape
                 pos:this.ball.translation, // start position in degree
                 rot:this.ball.rotation, // start rotation in degree
                 move: true, // dynamic or statique
+                density: 1,
+                friction: 0.8,
+                restitution: 0.2,
+                collidesWith: 0xffffffff,// The bits of the collision groups with which the shape collides.
+                name: objectTypes.BALL
+            });
+        }
+
+        if (this.camera) {
+            // v worldProperties se belezijo vsi trenutni physicsi o zogi
+            this.camera.worldProperties = this.world.add({
+                type:'sphere', // type of shape : sphere, box, cylinder
+                size:[1.2], // size of shape
+                pos:this.ball.translation, // start position in degree
+                rot:this.ball.rotation, // start rotation in degree
+                move: false, // dynamic or statique
                 density: 2,
                 friction: 0.8,
                 restitution: 0.2,
-                belongsTo: 1, // The bits of the collision groups to which the shape belongs.
-                collidesWith: 0xffffffff// The bits of the collision groups with which the shape collides.
+                collidesWith: 0xffffffff,// The bits of the collision groups with which the shape collides.
+                name: objectTypes.CAMERA
             });
         }
     }
@@ -139,6 +208,7 @@ class App extends Application {
             this.ball.move(dt, this.world);
 
             let properties = this.ball.worldProperties;
+            console.log(properties);
 
             this.ball.translation = [(properties.position.x), (properties.position.y), (properties.position.z)];
             this.ball.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
@@ -148,10 +218,8 @@ class App extends Application {
 
         if (this.camera) {
             this.camera.updateTransform();
-
+            //console.log(this.camera.worldProperties);
         }
-
-
 
     }
 
