@@ -165,5 +165,5 @@ export default class BallNode extends GLTFNode {
 BallNode.defaults = {
     velocity         : [0, 0, 0],
     acceleration     : 30,
-    jumpAcceleration : 50
+    jumpAcceleration : 40
 };

@@ -43,12 +43,9 @@ class App extends Application {
         this.gltfLoader = new GLTFLoader();
 
         // load the baller
-        await this.gltfLoader.load('../../public/models/baller/chadBaller.gltf');
+        await this.gltfLoader.load('../../public/models/gltfScene/scene.gltf');
         this.gltfScene = await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
 
-        // load other pipe
-        await this.gltfLoader.load('../../public/models/pipe/pipe.gltf');
-        this.pipe = await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
 
         const scene = await new SceneLoader().loadScene(uri);
         const builder = new SceneBuilder(scene);
@@ -69,12 +66,15 @@ class App extends Application {
         });
 
 
-        this.gltfScene.traverse(node => {
+        this.gltfScene.nodes.forEach(node => {
             if (node instanceof BallNode) {
                 this.ball = new BallNode();
                 this.ball = node;
                 this.ball.addChild(this.camera);
                 this.ball.translation = this.levelGenerator.startPos;
+            } else if (node.name === 'pipe')  {
+                node.translation = this.levelGenerator.endPos;
+                node.updateMatrix();
             }
         });
 
@@ -151,7 +151,7 @@ class App extends Application {
 
         if (this.camera) {
             // v worldProperties se belezijo vsi trenutni physicsi o zogi
-            this.camera.worldProperties = this.world.add({
+           /* this.camera.worldProperties = this.world.add({
                 type:'sphere', // type of shape : sphere, box, cylinder
                 size:[5], // size of shape
                 pos:this.camera.translation, // start position in degree
@@ -162,7 +162,7 @@ class App extends Application {
                 restitution: 0.2,
                 collidesWith: 0xffffffff,// The bits of the collision groups with which the shape collides.
                 name: objectTypes.CAMERA
-            });
+            });*/
         }
     }
 
@@ -207,10 +207,6 @@ class App extends Application {
             this.world.step();
         }
 
-
-        if (this.goal) {
-            this.goal.updateTransform();
-        }
 
     }
 

@@ -79,26 +79,26 @@ export default class Camera extends Node {
     }
 
     rotate(e){
-        if(this.worldProperties && this.worldProperties.numContacts === 0){
-            const dx = e.movementX;
-            const dy = e.movementY;
 
-            this.rotation[0] += dy * this.mouseSensitivity;
-            this.rotation[1] -= dx * this.mouseSensitivity;
+        const dx = e.movementX;
+        const dy = e.movementY;
 
-            const pi = Math.PI;
-            const twopi = pi * 2;
-            const halfpi = pi / 2;
+        this.rotation[0] += dy * this.mouseSensitivity;
+        this.rotation[1] -= dx * this.mouseSensitivity;
 
-            if (this.rotation[0] > halfpi) {
-                this.rotation[0] = halfpi;
-            }
-            if (this.rotation[0] < -halfpi) {
-                this.rotation[0] = -halfpi;
-            }
+        const pi = Math.PI;
+        const twopi = pi * 2;
+        const halfpi = pi / 2;
 
-            this.rotation[1] = ((this.rotation[1] % twopi) + twopi) % twopi;
+        if (this.rotation[0] > halfpi) {
+            this.rotation[0] = halfpi;
         }
+        if (this.rotation[0] < -halfpi) {
+            this.rotation[0] = -halfpi;
+        }
+
+        this.rotation[1] = ((this.rotation[1] % twopi) + twopi) % twopi;
+
     }
 
     keydownHandler(e) {

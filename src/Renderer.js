@@ -202,6 +202,7 @@ export default class Renderer {
         mat4.copy(matrix, viewMatrix);
         gl.uniformMatrix4fv(program.uniforms.uProjection, false, camera.projection);
 
+
         let color = vec3.clone(light.ambientColor);
         vec3.scale(color, color, 1.0 / 255.0);
         gl.uniform3fv(program.uniforms.uAmbientColor, color);
@@ -237,29 +238,28 @@ export default class Renderer {
             }
         );
 
+        program = this.programs.gltf;
+        gl.useProgram(program.program);
 
         gltfScene.nodes.forEach( node => {
-            if (node instanceof BallNode) {
-                // zamenja program
-                let programBaller = this.programs.baller;
-                gl.useProgram(programBaller.program);
-                gl.uniformMatrix4fv(programBaller.uniforms.uProjection, false, camera.projection);
-                gl.uniform1i(programBaller.uniforms.uTexture, 0);
-                this.renderBallNode(node, matrix );
+            if (node instanceof BallNode){
+
+                gl.uniformMatrix4fv(program.uniforms.uProjection, false, camera.projection);
+                gl.uniform1i(program.uniforms.uTexture, 0);
+                this.renderBallNode(node, matrix, program );
             } else {
-                this.renderNode(node, matrix);
+                this.renderNode(node, matrix, program);
             }
         });
     }
 
-    renderBallNode(node, mvpMatrix) {
+    renderBallNode(node, mvpMatrix, program) {
         const gl = this.gl;
 
         mvpMatrix = mat4.clone(mvpMatrix);
         mat4.mul(mvpMatrix, mvpMatrix, node.matrix);
 
         if (node.mesh) {
-            const program = this.programs.baller;
             gl.uniformMatrix4fv(program.uniforms.uViewModel, false, mvpMatrix);
             for (const primitive of node.mesh.primitives) {
                 this.renderPrimitive(primitive);
@@ -269,14 +269,13 @@ export default class Renderer {
 
     }
 
-    renderNode(node, mvpMatrix) {
+    renderNode(node, mvpMatrix, program) {
         const gl = this.gl;
 
         mvpMatrix = mat4.clone(mvpMatrix);
         mat4.mul(mvpMatrix, mvpMatrix, node.matrix);
 
         if (node.mesh) {
-            const program = this.programs.simple;
             gl.uniformMatrix4fv(program.uniforms.uViewModel, false, mvpMatrix);
             for (const primitive of node.mesh.primitives) {
                 this.renderPrimitive(primitive);

@@ -57,7 +57,7 @@ export default class LevelGenerator {
             y = map[i+1];
             z = map[i+2];
             if (y > 0.35 * this.terrainGen.heightMult) {
-                this.endPos = [x, y, z];
+                this.endPos = [x, y - 2, z];
                 break;
             }
         }

@@ -19,6 +19,7 @@ export default class GLTFNode {
         this.matrix = options.matrix
             ? mat4.clone(options.matrix)
             : mat4.create();
+        this.name = options.name;
 
         if (options.matrix) {
             this.updateTransform();
