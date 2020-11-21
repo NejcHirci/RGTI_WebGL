@@ -103,6 +103,33 @@ void main() {
 }
 `;
 
+const skyboxV = `#version 300 es
+layout (location = 0) in vec4 a_position;
+out vec4 v_position;
+void main() {
+  v_position = a_position;
+  gl_Position = a_position;
+  gl_Position.z = 1.0;
+}
+`;
+
+const skyboxF = `#version 300 es
+precision highp float;
+ 
+uniform samplerCube uSkybox;
+uniform mat4 uViewMat;
+ 
+in vec4 v_position;
+ 
+// we need to declare an output for the fragment shader
+out vec4 outColor;
+ 
+void main() {
+  vec4 t = uViewMat * v_position;
+  outColor = texture(uSkybox, normalize(t.xyz / t.w));
+}
+`
+
 export default {
     simple: {
         vertex   : vertex,
@@ -111,5 +138,9 @@ export default {
     gltf: {
         vertex   : vertexGltf,
         fragment : fragmentGltf
+    },
+    skybox: {
+        vertex   : skyboxV,
+        fragment : skyboxF
     }
 };

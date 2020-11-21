@@ -29,7 +29,7 @@ export default class Renderer {
         });
     }
 
-    prepare(scene, gltfScene) {
+    prepare(scene, gltfScene, skybox) {
         scene.nodes.forEach(node => {
             node.gl = {};
             if (node.mesh) {
@@ -45,6 +45,10 @@ export default class Renderer {
                 this.prepareMesh(node.mesh);
             }
         });
+
+        if (skybox) {
+            this.prepareSkybox(skybox);
+        }
 
     }
 
@@ -186,8 +190,34 @@ export default class Renderer {
      *
      ***/
 
+    /***
+    SKYBOX
+     ***/
+    prepareSkybox(skybox) {
+        const gl = this.gl;
 
-    render(scene, camera, light, gltfScene) {
+        const vao = gl.createVertexArray();
+        gl.bindVertexArray(vao);
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ARRAY_BUFFER, skybox.vertices, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+        let texture = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+        skybox.cubemap.forEach((face) => {
+            const {target, img} = face;
+            gl.texImage2D(target, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        });
+        gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+
+        skybox.gl.vao = vao;
+        skybox.gl.texture = texture;
+    }
+
+    render(scene, camera, light, gltfScene, skybox) {
         const gl = this.gl;
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -243,7 +273,6 @@ export default class Renderer {
 
         gltfScene.nodes.forEach( node => {
             if (node instanceof BallNode){
-
                 gl.uniformMatrix4fv(program.uniforms.uProjection, false, camera.projection);
                 gl.uniform1i(program.uniforms.uTexture, 0);
                 this.renderBallNode(node, matrix, program );
@@ -251,6 +280,22 @@ export default class Renderer {
                 this.renderNode(node, matrix, program);
             }
         });
+
+        //RENDER SKYBOX
+        program = this.programs.skybox;
+        gl.useProgram(program.program);
+        let viewSky = mat4.copy([], viewMatrix);
+        viewSky[12] = 0; viewSky[13] = 0; viewSky[14] = 0;
+        let viewDirProjMat = mat4.mul([], camera.projection, viewSky);
+        let viewDirProjInv = mat4.invert([], viewDirProjMat);
+
+        gl.bindVertexArray(skybox.gl.vao);
+        gl.uniformMatrix4fv(program.uniforms.uViewMat, false, viewDirProjInv);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox.gl.texture);
+        gl.bindSampler(0, this.defaultSampler);
+        gl.uniform1i(program.uniforms.uSkybox, 0);
+        gl.depthFunc(gl.LEQUAL);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
     renderBallNode(node, mvpMatrix, program) {
@@ -286,7 +331,6 @@ export default class Renderer {
             this.renderNode(child, mvpMatrix);
         }
     }
-
 
     renderPrimitive(primitive) {
         const gl = this.gl;

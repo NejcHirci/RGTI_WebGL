@@ -8,6 +8,8 @@ import Light from './Light.js';
 import GLTFLoader from './GLTF/GLTFLoader.js';
 import BallNode from './GLTF/BallNode.js';
 import LevelGenerator from './LevelGenerator.js';
+import Skybox from "./Skybox.js";
+import Model from "./Model.js";
 
 const vec3 = glMatrix.vec3;
 const quat = glMatrix.quat;
@@ -31,6 +33,7 @@ class App extends Application {
         this.startTime = this.time;
         this.aspect = 1;
         this.light = new Light();
+        this.skybox = new Skybox(gl);
 
         this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
         document.addEventListener('pointerlockchange', this.pointerlockchangeHandler);
@@ -82,7 +85,9 @@ class App extends Application {
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
 
-        this.renderer.prepare(this.scene, this.gltfScene);
+        console.log(this.skybox);
+        console.log(this.scene);
+        this.renderer.prepare(this.scene, this.gltfScene, this.skybox);
 
         this.initPhysics();
     }
@@ -212,7 +217,7 @@ class App extends Application {
 
     render() {
         if (this.scene && this.ball) {
-            this.renderer.render(this.scene, this.camera, this.light, this.gltfScene);
+            this.renderer.render(this.scene, this.camera, this.light, this.gltfScene, this.skybox);
         }
     }
 

@@ -8,6 +8,11 @@
       "fov": 1.5,
       "near": 0.01,
       "far": 500
+    },
+    {
+      "type": "model",
+      "mesh": 0,
+      "texture": 0
     }
   ],
   "textures": [

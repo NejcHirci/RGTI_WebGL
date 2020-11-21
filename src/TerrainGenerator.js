@@ -233,7 +233,6 @@ export default class TerrainGenerator {
         ctx.putImageData(idata, 0, 0);
         let image = new Image();
         image.src = canvas.toDataURL();
-        console.log(image.src);
         return new ImageData(buffer, this.mapSize, this.mapSize);
     }
 
