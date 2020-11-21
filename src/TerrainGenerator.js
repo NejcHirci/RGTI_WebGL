@@ -173,7 +173,7 @@ export default class TerrainGenerator {
 
         const funEval = function (val) {
             let a = 3;
-            let b = 2.2;
+            let b = 5;
 
             return Math.pow(val, a) / (Math.pow(val, a) + Math.pow(b - b * val, a));
         }
@@ -200,7 +200,7 @@ export default class TerrainGenerator {
         }
 
     }
-
+    
     generateTexture(heightMap) {
         let buffer = new Uint8ClampedArray(this.mapSize * this.mapSize * 4);
 

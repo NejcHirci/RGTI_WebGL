@@ -16,7 +16,7 @@ export default class LevelGenerator {
         this.createIsland();
 
         //(2) Set Start and Goal position and add Goal object
-        //this.createStartAndGoal();
+        this.createStartAndGoal();
 
         //(3) Add static obstacles
         //this.createObstacles()
@@ -24,9 +24,12 @@ export default class LevelGenerator {
 
     createIsland() {
         let heightMap = this.terrainGen.generateNoiseMap(this.seed++);
+        let tex = this.terrainGen.generateTexture(heightMap);
+        let mesh = this.terrainGen.generateMesh(heightMap);
+
         this.levelNode = new Model(
-            new Mesh(this.terrainGen.generateMesh(heightMap)),
-            this.terrainGen.generateTexture(heightMap),
+            new Mesh(mesh),
+            tex,
             { name: "terrain" }
         );
 
@@ -37,30 +40,27 @@ export default class LevelGenerator {
 
     createStartAndGoal() {
         //First get positions
-        const map = this.mesh.vertices;
+        const map = this.levelNode.mesh.vertices;
         let x, y, z
         for (let i = 0; i < map.length - 3; i += 3) {
+
             x = map[i];
             y = map[i + 1];
             z = map[i + 2];
-            if (map[y] > 0.3 * this.terrainGen.heightMult) {
-                //Found first high point
-                this.startPos = [x, y, z];
+            if (y > 0.35 * this.terrainGen.heightMult) {
+                this.startPos = [x, y+5, z];
                 break;
             }
         }
         for (let i = map.length - 3; i > 2; i -= 3) {
-            x = map[i - 2];
-            y = map[i - 1];
-            z = map[i];
-            if (map[y] > 0.3 * this.terrainGen.heightMult) {
-                //Found last high point
+            x = map[i];
+            y = map[i+1];
+            z = map[i+2];
+            if (y > 0.35 * this.terrainGen.heightMult) {
                 this.endPos = [x, y, z];
                 break;
             }
         }
-
-        //TODO: Add goal object to level node
     }
 
     createObstacles(maxObstacles){

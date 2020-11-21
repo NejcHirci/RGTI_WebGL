@@ -54,10 +54,13 @@ class App extends Application {
         const builder = new SceneBuilder(scene);
         this.scene = builder.build();
 
+
         this.levelGenerator = new LevelGenerator(82, this.scene);
         this.levelGenerator.next();
 
-        // Find first camera.
+
+
+        // Find camera and goal
         this.camera = null;
         this.scene.traverse(node => {
             if (node instanceof Camera) {
@@ -65,17 +68,13 @@ class App extends Application {
             }
         });
 
-        this.scene.traverse(node => {
-            if (node instanceof Camera) {
-                this.camera = new Camera(node);
-            }
-        });
 
         this.gltfScene.traverse(node => {
             if (node instanceof BallNode) {
                 this.ball = new BallNode();
                 this.ball = node;
                 this.ball.addChild(this.camera);
+                this.ball.translation = this.levelGenerator.startPos;
             }
         });
 
@@ -87,7 +86,6 @@ class App extends Application {
 
         this.initPhysics();
     }
-
 
 
     initPhysics(){
@@ -122,7 +120,6 @@ class App extends Application {
                     pos:[x,y,z],
                     name: objectTypes.LAND
                 })
-
             }
         }
         // add plane ust under water
@@ -210,6 +207,10 @@ class App extends Application {
             this.world.step();
         }
 
+
+        if (this.goal) {
+            this.goal.updateTransform();
+        }
 
     }
 
