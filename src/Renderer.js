@@ -1,5 +1,6 @@
 import * as WebGL from './WebGL.js';
 import shaders from './shaders.js';
+import BallNode from './GLTF/BallNode.js';
 
 const mat4 = glMatrix.mat4;
 const vec3 = glMatrix.vec3;
@@ -28,7 +29,7 @@ export default class Renderer {
         });
     }
 
-    prepare(scene, ball) {
+    prepare(scene, gltfScene) {
         scene.nodes.forEach(node => {
             node.gl = {};
             if (node.mesh) {
@@ -39,10 +40,11 @@ export default class Renderer {
             }
         });
 
-        if (ball.mesh) {
-            this.prepareMesh(ball.mesh);
-        }
-
+        gltfScene.nodes.forEach( node => {
+            if (node.mesh) {
+                this.prepareMesh(node.mesh);
+            }
+        });
 
     }
 
@@ -185,7 +187,7 @@ export default class Renderer {
      ***/
 
 
-    render(scene, camera, light, ball) {
+    render(scene, camera, light, gltfScene) {
         const gl = this.gl;
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -235,15 +237,19 @@ export default class Renderer {
             }
         );
 
-        // zamenja program
-        let programBaller = this.programs.baller;
-        gl.useProgram(programBaller.program);
-        gl.uniformMatrix4fv(programBaller.uniforms.uProjection, false, camera.projection);
-        gl.uniform1i(programBaller.uniforms.uTexture, 0);
 
-
-        this.renderBallNode(ball , matrix );
-
+        gltfScene.nodes.forEach( node => {
+            if (node instanceof BallNode) {
+                // zamenja program
+                let programBaller = this.programs.baller;
+                gl.useProgram(programBaller.program);
+                gl.uniformMatrix4fv(programBaller.uniforms.uProjection, false, camera.projection);
+                gl.uniform1i(programBaller.uniforms.uTexture, 0);
+                this.renderBallNode(node, matrix );
+            } else {
+                this.renderNode(node, matrix);
+            }
+        });
     }
 
     renderBallNode(node, mvpMatrix) {
@@ -270,7 +276,7 @@ export default class Renderer {
         mat4.mul(mvpMatrix, mvpMatrix, node.matrix);
 
         if (node.mesh) {
-            const program = this.programs.baller;
+            const program = this.programs.simple;
             gl.uniformMatrix4fv(program.uniforms.uViewModel, false, mvpMatrix);
             for (const primitive of node.mesh.primitives) {
                 this.renderPrimitive(primitive);

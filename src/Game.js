@@ -48,7 +48,7 @@ class App extends Application {
 
         // load other pipe
         await this.gltfLoader.load('../../public/models/pipe/pipe.gltf');
-        this.pipe= await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
+        this.pipe = await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
 
         const scene = await new SceneLoader().loadScene(uri);
         const builder = new SceneBuilder(scene);
@@ -83,7 +83,7 @@ class App extends Application {
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
 
-        this.renderer.prepare(this.scene, this.ball);
+        this.renderer.prepare(this.scene, this.gltfScene);
 
         this.initPhysics();
     }
@@ -215,7 +215,7 @@ class App extends Application {
 
     render() {
         if (this.scene && this.ball) {
-            this.renderer.render(this.scene, this.camera, this.light, this.ball);
+            this.renderer.render(this.scene, this.camera, this.light, this.gltfScene);
         }
     }
 
