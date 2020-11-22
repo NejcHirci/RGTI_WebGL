@@ -21,7 +21,17 @@ const objectTypes = {
     LAND: 'land',
     BALL: 'ball',
     CAMERA: 'camera',
-    GOAL: 'goal'
+    GOAL: 'goal',
+    BALL_CATCHER: 'ballCatcher',
+    SPIKY_BALL: 'spikyBall'
+}
+
+const collisionGroups = {
+    // The Bit of a collision group
+    group1: 1 << 0, // 00000000 00000000 00000000 00000001
+    group2: 1 << 1, // 00000000 00000000 00000000 00000010
+    group3: 1 << 2, // 00000000 00000000 00000000 00000100
+    all: 0xffffffff // 11111111 11111111 11111111 11111111
 }
 
 class App extends Application {
@@ -88,7 +98,7 @@ class App extends Application {
                 gltfSceneFiltered.nodes.push(node);
             } else if (node.name === 'spikey') {
                 let n;
-                for(let i = 1; i < 30; i++) {
+                for(let i = 1; i < 250; i++) {
                     n = new GLTFNode(node);
                     gltfSceneFiltered.nodes.push(n);
                 }
@@ -143,20 +153,25 @@ class App extends Application {
                     type:'sphere',
                     size:[r],
                     pos:[x,y,z],
-                    name: objectTypes.LAND
+                    name: objectTypes.LAND,
+                    collidesWith: 3,
+                    belongsTo: 3
                 })
             }
         }
+
+        console.log(this.world);
         // add plane ust under water
         if (this.levelGenerator.terrainGen) {
 
             const size = this.levelGenerator.terrainGen.mapSize;
-
-            let x = this.world.add({type:'box', size:[size*3, 1 , size*3], pos:[0,-1,0], move:false, name: objectTypes.WATER});
+            this.world.add({type:'box', size:[size*3, 1 , size*3], pos:[0,-1,0], move:false, name: objectTypes.WATER, collidesWith: 1, belongsTo: 1});
+            this.world.add({type:'box', size:[size*3, 1 , size*3], pos:[0, -10,0], move:false, name: objectTypes.BALL_CATCHER, collidesWith: 2, belongsTo: 2});
 
         } else {
             Error.log("Terrain generator missing!");
         }
+
 
         if (this.ball) {
             // v worldProperties se belezijo vsi trenutni physicsi o zogi
@@ -169,7 +184,8 @@ class App extends Application {
                 density: 1,
                 friction: 0.8,
                 restitution: 0.5,
-                collidesWith: 0xffffffff,// The bits of the collision groups with which the shape collides.
+                collidesWith: 3,// The bits of the collision groups with which the shape collides.
+                belongsTo: 3,
                 name: objectTypes.BALL
             });
 
@@ -186,7 +202,7 @@ class App extends Application {
             });
         }
 
-        this.obstacleHandler.updateSpikyBalls(this.world, this.gltfScene);
+        this.obstacleHandler.defineSpikyBalls(this.world, this.gltfScene);
 
 
 
@@ -212,6 +228,10 @@ class App extends Application {
         this.canvas.requestPointerLock();
     }
 
+    dec2bin(dec){
+        return (dec >>> 0).toString(2);
+    }
+
     pointerlockchangeHandler() {
         if (!this.camera) {
             return;
@@ -232,6 +252,39 @@ class App extends Application {
         this.startTime = this.time;
 
         if(this.world) {
+
+            if(this.ball.worldProperties.numContacts > 0) {
+                if(this.ball.isInContactWith([objectTypes.SPIKY_BALL])) {
+                    if (this.ball.damagedBySpike === undefined || this.ball.damagedBySpike === false) {
+                        this.ball.damagedBySpike = true;
+                        this.ball.hp  -= 20;
+                        setTimeout(()=> {
+                            this.ball.damagedBySpike = false;
+                        }, 1000);
+                        console.log("OUCH!!");
+                        console.log("HP: " + this.ball.hp);
+                    }
+                }
+                if (this.ball.isInContactWith([objectTypes.WATER])) {
+                    if (this.ball.damagedByWater === undefined || this.ball.damagedByWater === false) {
+                        this.ball.damagedByWater = true;
+                        this.ball.hp  -= 8;
+                        setTimeout(()=> {
+                            this.ball.damagedByWater = false;
+                        }, 1000);
+
+                        console.log("OOF!!");
+                        console.log("HP: " + this.ball.hp);
+                    }
+
+                }
+                if (this.ball.hp <= 0) {
+                    this.ball.hp = 0;
+                    console.log("HP: " + this.ball.hp);
+                    console.log("YOU DEAD!");
+                }
+            }
+
             this.ball.move(dt);
 
             let properties = this.ball.worldProperties;
@@ -247,6 +300,7 @@ class App extends Application {
         if (this.camera) {
             this.camera.updateTransform();
         }
+
         if (this.world) {
             this.world.step();
         }
@@ -269,6 +323,8 @@ class App extends Application {
             this.camera.updateProjection();
         }
     }
+
+
 
 }
 

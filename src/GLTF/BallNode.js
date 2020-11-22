@@ -25,6 +25,7 @@ export default class BallNode extends GLTFNode {
         this.keyupHandler = this.keyupHandler.bind(this);
         this.keys = {};
         this.jumping = false;
+        this.hp = 100;
     }
 
     traverse(before, after) {
@@ -127,37 +128,6 @@ export default class BallNode extends GLTFNode {
             this.worldProperties.linearVelocity.z = linearVelocity[2];
         }
 
-    }
-
-    // prejme string array imen objektov za katere zelimo preveriti collision
-    // collidesWithAll nastaviš na true če hočeš da zoga collida z vsemi podanimi objekti
-    isInContactWith(names, collidesWithAll = false) {
-      let collisionChecked = [];
-      let numChecked = 0;
-      let numToCheck = names.length;
-
-      if (this.worldProperties !== null) {
-          let current = this.worldProperties.contactLink;
-
-          while( current !== null) {
-              for(let n in names) {
-                  if (current.body.name === names[n]) {
-                      if (!collidesWithAll) {
-                          return true;
-                      } else if(collisionChecked[names[n]] !== true) {
-                          collisionChecked[names[n]] = true;
-                          numChecked++;
-                          if (numChecked === numToCheck) {
-                             return true;
-                          }
-                      }
-                  }
-              }
-              current = current.next;
-          }
-      }
-
-      return false;
     }
 
 }

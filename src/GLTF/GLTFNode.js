@@ -64,6 +64,51 @@ export default class GLTFNode {
         }
     }
 
+    // prejme string array imen objektov za katere zelimo preveriti collision
+    // collidesWithAll nastaviš na true če hočeš da zoga collida z vsemi podanimi objekti
+    isInContactWith(names, collidesWithAll = false) {
+        let collisionChecked = [];
+        let numChecked = 0;
+        let numToCheck = names.length;
+
+        if (this.worldProperties !== null) {
+            let current = this.worldProperties.contactLink;
+
+            while( current !== null) {
+                for(let n in names) {
+                    if (current.body.name === names[n]) {
+                        if (!collidesWithAll) {
+                            return true;
+                        } else if(collisionChecked[names[n]] !== true) {
+                            collisionChecked[names[n]] = true;
+                            numChecked++;
+                            if (numChecked === numToCheck) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                current = current.next;
+            }
+        }
+
+        return false;
+    }
+
+    relocate(obstacleHandler = null) {
+        if (this.name === 'spikey' && obstacleHandler != null) {
+            let newPos = obstacleHandler.getNewSpikyBallPosition();
+            let properties = this.worldProperties;
+            properties.position.x = newPos[0];
+            properties.position.y = newPos[1];
+            properties.position.z = newPos[2];
+            this.translation = [(properties.position.x), (properties.position.y), (properties.position.z)];
+            this.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
+            this.updateMatrix();
+            this.respawning = false
+        }
+    }
+
 
 }
 
