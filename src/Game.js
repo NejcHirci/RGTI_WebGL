@@ -9,7 +9,8 @@ import GLTFLoader from './GLTF/GLTFLoader.js';
 import BallNode from './GLTF/BallNode.js';
 import LevelGenerator from './LevelGenerator.js';
 import Skybox from "./Skybox.js";
-import Mesh from "./Mesh.js";
+import ObstacleHandler from "./ObstacleHandler.js";
+import GLTFNode from "./GLTF/GLTFNode.js";
 
 const vec3 = glMatrix.vec3;
 const quat = glMatrix.quat;
@@ -60,8 +61,6 @@ class App extends Application {
         this.levelGenerator = new LevelGenerator(82, this.scene);
         this.levelGenerator.next();
 
-
-
         // Find camera and goal
         this.camera = null;
         this.scene.traverse(node => {
@@ -70,6 +69,11 @@ class App extends Application {
             }
         });
 
+        let spikeyNum = 30;
+
+        let gltfSceneFiltered = {
+            nodes: []
+        };
 
         this.gltfScene.nodes.forEach(node => {
             if (node instanceof BallNode) {
@@ -77,17 +81,34 @@ class App extends Application {
                 this.ball = node;
                 this.ball.addChild(this.camera);
                 this.ball.translation = this.levelGenerator.startPos;
+                gltfSceneFiltered.nodes.push(node);
             } else if (node.name === 'pipe')  {
                 node.translation = this.levelGenerator.endPos;
                 node.updateMatrix();
+                gltfSceneFiltered.nodes.push(node);
+            } else if (node.name === 'spikey') {
+                let n;
+                for(let i = 1; i < 30; i++) {
+                    n = new GLTFNode(node);
+                    gltfSceneFiltered.nodes.push(n);
+                }
             }
         });
 
+
+
+        const obstacleHandlerOptions = {
+            mapSize: this.levelGenerator.terrainGen.mapSize
+        }
+
+        this.obstacleHandler = new ObstacleHandler(obstacleHandlerOptions);
 
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
 
         this.renderer.prepare(this.scene, this.gltfScene, this.skybox);
+        // dodaj vse obstacle
+        this.gltfScene = gltfSceneFiltered;
 
         this.initPhysics();
     }
@@ -151,6 +172,8 @@ class App extends Application {
                 collidesWith: 0xffffffff,// The bits of the collision groups with which the shape collides.
                 name: objectTypes.BALL
             });
+
+
         }
 
         if (this.levelGenerator.endPos) {
@@ -162,6 +185,10 @@ class App extends Application {
                 name: objectTypes.GOAL
             });
         }
+
+        this.obstacleHandler.updateSpikyBalls(this.world, this.gltfScene);
+
+        console.log(this.world)
 
         /*
         if (this.camera) {
@@ -211,8 +238,10 @@ class App extends Application {
 
             this.ball.translation = [(properties.position.x), (properties.position.y), (properties.position.z)];
             this.ball.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
-
             this.ball.updateMatrix();
+
+            // update obstacles
+            this.obstacleHandler.updateSpikes(this.gltfScene);
         }
 
         if (this.camera) {

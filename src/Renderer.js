@@ -53,7 +53,7 @@ export default class Renderer {
 
         gltfScene.nodes.forEach( node => {
             if (node.mesh) {
-                this.prepareMesh(node.mesh);
+                    this.prepareMesh(node.mesh);
             }
         });
 
