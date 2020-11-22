@@ -237,6 +237,7 @@ class App extends Application {
         }
 
         if (document.pointerLockElement === this.canvas) {
+            this.playSound('theme');
             this.camera.enable();
             this.ball.enable();
         } else {
@@ -328,7 +329,7 @@ class App extends Application {
 
     playSound(id) {
         const sound = document.getElementById(id);
-         sound.play();
+        sound.play();
     }
 
 }
