@@ -2,7 +2,7 @@ export default class Application {
 
     constructor(canvas) {
         this._update = this._update.bind(this);
-
+        this.waitForLoad = false;
         this.canvas = canvas;
         this._initGL();
         this.start();
@@ -29,6 +29,7 @@ export default class Application {
         this.update();
         this.render();
         requestAnimationFrame(this._update);
+
     }
 
     _resize() {

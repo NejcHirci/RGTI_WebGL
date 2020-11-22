@@ -38,6 +38,7 @@ class App extends Application {
 
     start() {
         const gl = this.gl;
+        this.waitForLoad = false;
 
         this.renderer = new Renderer(gl);
 
@@ -45,7 +46,9 @@ class App extends Application {
         this.startTime = this.time;
         this.aspect = 1;
         this.light = new Light();
+        this.healthBar = document.getElementById("healthBar");
 
+        
         this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
         document.addEventListener('pointerlockchange', this.pointerlockchangeHandler);
 
@@ -68,7 +71,7 @@ class App extends Application {
         this.scene = builder.build();
 
 
-        this.levelGenerator = new LevelGenerator(82, this.scene);
+        this.levelGenerator = new LevelGenerator(24, this.scene);
         this.levelGenerator.next();
 
         // Find camera and goal
@@ -91,6 +94,7 @@ class App extends Application {
                 this.ball = node;
                 this.ball.addChild(this.camera);
                 this.ball.translation = this.levelGenerator.startPos;
+
                 gltfSceneFiltered.nodes.push(node);
             } else if (node.name === 'pipe')  {
                 node.translation = this.levelGenerator.endPos;
@@ -122,7 +126,6 @@ class App extends Application {
 
         this.initPhysics();
     }
-
 
     initPhysics(){
 
@@ -286,6 +289,8 @@ class App extends Application {
             }
 
             this.ball.move(dt);
+            console.log(this.ball.hp);
+            this.healthBar.value = this.ball.hp
 
             let properties = this.ball.worldProperties;
 
@@ -332,8 +337,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('canvas');
     const app = new App(canvas);
     const gui = new dat.GUI();
-    gui.addColor(app.light, 'ambientColor');
-    gui.addColor(app.light, 'diffuseColor');
-    gui.addColor(app.light, 'specularColor');
     gui.add(app, 'enableCamera');
 });
+
+function startGame() {
+
+
+}
