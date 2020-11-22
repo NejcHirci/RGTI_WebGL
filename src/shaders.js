@@ -53,7 +53,7 @@ void main() {
     diff = floor(diff * 7.0) / 7.0;
     vec3 diffuse = diff * uDiffuseColor;
     
-    float ambientStrength = 0.4;
+    float ambientStrength = 0.8;
     vec3 ambient = ambientStrength * uAmbientColor;
     vec3 light = (ambient + diffuse);
     
@@ -91,6 +91,7 @@ out vec4 oColor;
 
 void main() {
     oColor = texture(uTexture, vTexCoord);
+    oColor.rgb *= 1.1;
 }
 `;
 
