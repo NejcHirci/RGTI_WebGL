@@ -48,7 +48,7 @@ class App extends Application {
         this.light = new Light();
         this.healthBar = document.getElementById("healthBar");
 
-        
+
         this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
         document.addEventListener('pointerlockchange', this.pointerlockchangeHandler);
 
@@ -71,7 +71,7 @@ class App extends Application {
         this.scene = builder.build();
 
 
-        this.levelGenerator = new LevelGenerator(24, this.scene);
+        this.levelGenerator = new LevelGenerator(82, this.scene);
         this.levelGenerator.next();
 
         // Find camera and goal
@@ -94,7 +94,6 @@ class App extends Application {
                 this.ball = node;
                 this.ball.addChild(this.camera);
                 this.ball.translation = this.levelGenerator.startPos;
-
                 gltfSceneFiltered.nodes.push(node);
             } else if (node.name === 'pipe')  {
                 node.translation = this.levelGenerator.endPos;
@@ -126,6 +125,7 @@ class App extends Application {
 
         this.initPhysics();
     }
+
 
     initPhysics(){
 
@@ -182,11 +182,11 @@ class App extends Application {
                 type:'sphere', // type of shape : sphere, box, cylinder
                 size:[0.95], // size of shape
                 pos:this.ball.translation, // start position in degree
-                rot:this.ball.rotation, // start rotation in degree
+                rot: [-90, 180, 180], // start rotation in degree
                 move: true, // dynamic or statique
                 density: 1,
                 friction: 0.8,
-                restitution: 0.5,
+                restitution: 0.2,
                 collidesWith: 3,// The bits of the collision groups with which the shape collides.
                 belongsTo: 3,
                 name: objectTypes.BALL
@@ -231,10 +231,6 @@ class App extends Application {
         this.canvas.requestPointerLock();
     }
 
-    dec2bin(dec){
-        return (dec >>> 0).toString(2);
-    }
-
     pointerlockchangeHandler() {
         if (!this.camera) {
             return;
@@ -255,7 +251,6 @@ class App extends Application {
         this.startTime = this.time;
 
         if(this.world) {
-
             if(this.ball.worldProperties.numContacts > 0) {
                 if(this.ball.isInContactWith([objectTypes.SPIKY_BALL])) {
                     if (this.ball.damagedBySpike === undefined || this.ball.damagedBySpike === false) {
@@ -264,8 +259,10 @@ class App extends Application {
                         setTimeout(()=> {
                             this.ball.damagedBySpike = false;
                         }, 1000);
+                        this.playSound('oof');
                         console.log("OUCH!!");
                         console.log("HP: " + this.ball.hp);
+
                     }
                 }
                 if (this.ball.isInContactWith([objectTypes.WATER])) {
@@ -275,7 +272,7 @@ class App extends Application {
                         setTimeout(()=> {
                             this.ball.damagedByWater = false;
                         }, 1000);
-
+                        this.playSound('oof');
                         console.log("OOF!!");
                         console.log("HP: " + this.ball.hp);
                     }
@@ -289,7 +286,7 @@ class App extends Application {
             }
 
             this.ball.move(dt);
-            console.log(this.ball.hp);
+
             this.healthBar.value = this.ball.hp
 
             let properties = this.ball.worldProperties;
@@ -329,7 +326,10 @@ class App extends Application {
         }
     }
 
-
+    playSound(id) {
+        const sound = document.getElementById(id);
+         sound.play();
+    }
 
 }
 

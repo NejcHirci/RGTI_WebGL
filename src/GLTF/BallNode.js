@@ -5,6 +5,7 @@ const vec3 = glMatrix.vec3;
 import Node from '../Node.js';
 import Utils from "../Utils.js";
 import GLTFNode from "./GLTFNode.js";
+const quat = glMatrix.quat;
 
 
 const objectTypes = {
@@ -26,6 +27,11 @@ export default class BallNode extends GLTFNode {
         this.keys = {};
         this.jumping = false;
         this.hp = 100;
+
+
+        quat.fromEuler(this.rotation, -90,100,180);
+        this.updateMatrix();
+
     }
 
     traverse(before, after) {
@@ -134,7 +140,7 @@ export default class BallNode extends GLTFNode {
 
 BallNode.defaults = {
     velocity         : [0, 0, 0],
-    acceleration     : 45,
+    acceleration     : 40,
     jumpAcceleration : 20,
     waterAcc: 20
 };
