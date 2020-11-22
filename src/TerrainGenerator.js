@@ -157,7 +157,7 @@ export default class TerrainGenerator {
                 }
 
                 if (noiseMap[y][x] <= 0.36) {
-                    normal = vec3.fromValues(0,1,0);
+                    normal = vec3.fromValues(0,0,0);
                 }
                 mesh.normals.push(normal[0], normal[1], normal[2]);
 
@@ -245,7 +245,7 @@ export default class TerrainGenerator {
 
         let topLeftX = (this.mapSize - 1) / -2;
         let topLeftZ = (this.mapSize - 1) / 2;
-        let normal = vec3.fromValues(0, 1, 0);
+        let normal = vec3.fromValues(0, 0, 0);
 
         // Calculate coordinates
         let vertInd = 0;
