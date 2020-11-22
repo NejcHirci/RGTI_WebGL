@@ -168,7 +168,7 @@ class App extends Application {
                 move: true, // dynamic or statique
                 density: 1,
                 friction: 0.8,
-                restitution: 0.2,
+                restitution: 0.5,
                 collidesWith: 0xffffffff,// The bits of the collision groups with which the shape collides.
                 name: objectTypes.BALL
             });
@@ -188,7 +188,7 @@ class App extends Application {
 
         this.obstacleHandler.updateSpikyBalls(this.world, this.gltfScene);
 
-        console.log(this.world)
+
 
         /*
         if (this.camera) {

@@ -50,7 +50,7 @@ export default class ObstacleHandler {
                 i++;
 
                 node.translation = ball.pos;
-                //node.worldProperties = world.add(ball);
+                node.worldProperties = world.add(ball);
                 node.updateMatrix();
             }
         });
@@ -63,15 +63,10 @@ export default class ObstacleHandler {
         scene.nodes.forEach(node => {
             if(node.name === 'spikey' && node.worldProperties != null) {
                 properties= node.worldProperties;
-                console.log(properties);
-
                 node.translation = [(properties.position.x), (properties.position.y), (properties.position.z)];
                 node.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
                 node.updateMatrix();
 
-                if (properties.numContacts > 0) {
-                    node.worldProperties = null;
-                }
             }
         });
 
@@ -81,12 +76,12 @@ export default class ObstacleHandler {
 
         return {
             type:'sphere',
-            size:[0.6],
+            size:[1.2],
             pos: [x, y, z],
             move: true, // dynamic or statique
             density: 1,
-            friction: 0.8,
-            restitution: 0.2,
+            friction: 1,
+            restitution: 1,
             collidesWith: 0xffffffff,// The bits of the collision groups with which the shape collides.
             name: objectTypes.SPIKY_BALL
         }
