@@ -9,7 +9,8 @@
             "name" : "Scene",
             "nodes" : [
                 0,
-                1
+                1,
+                2
             ]
         }
     ],
@@ -52,6 +53,15 @@
                 5,
                 10,
                 5
+            ]
+        },
+        {
+            "mesh" : 2,
+            "name" : "spikey",
+            "translation" : [
+                6.195015907287598,
+                10.251790046691895,
+                -0.5360888242721558
             ]
         }
     ],
@@ -133,6 +143,57 @@
                 "metallicFactor" : 0,
                 "roughnessFactor" : 0.8114382028579712
             }
+        },
+        {
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                0,
+                0,
+                0
+            ],
+            "name" : "hcmn_obj_thornball_HD_ball",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 5,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 1,
+                "roughnessFactor" : 0.5
+            }
+        },
+        {
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                0,
+                0,
+                0
+            ],
+            "name" : "cmn_obj_thornball_HD_body",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 6,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 1,
+                "roughnessFactor" : 0.5
+            }
+        },
+        {
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                0,
+                0,
+                0
+            ],
+            "name" : "cmn_obj_thornball_HD_thorn",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 7,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 1,
+                "roughnessFactor" : 0.5
+            }
         }
     ],
     "meshes" : [
@@ -181,6 +242,41 @@
                     "material" : 3
                 }
             ]
+        },
+        {
+            "name" : "cmn_obj_thornball_HD_mesh",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 16,
+                        "NORMAL" : 17,
+                        "TEXCOORD_0" : 18,
+                        "COLOR_0" : 19
+                    },
+                    "indices" : 20,
+                    "material" : 4
+                },
+                {
+                    "attributes" : {
+                        "POSITION" : 21,
+                        "NORMAL" : 22,
+                        "TEXCOORD_0" : 23,
+                        "COLOR_0" : 24
+                    },
+                    "indices" : 25,
+                    "material" : 5
+                },
+                {
+                    "attributes" : {
+                        "POSITION" : 26,
+                        "NORMAL" : 27,
+                        "TEXCOORD_0" : 28,
+                        "COLOR_0" : 29
+                    },
+                    "indices" : 30,
+                    "material" : 6
+                }
+            ]
         }
     ],
     "textures" : [
@@ -198,6 +294,15 @@
         },
         {
             "source" : 4
+        },
+        {
+            "source" : 5
+        },
+        {
+            "source" : 6
+        },
+        {
+            "source" : 6
         }
     ],
     "images" : [
@@ -225,6 +330,16 @@
             "mimeType" : "image/jpeg",
             "name" : "Leather_Black_albedo",
             "uri" : "Leather_Black_albedo.jpg"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "cmn_metal_ms_thornball_dif",
+            "uri" : "cmn_metal_ms_thornball_dif.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "cmn_metal_ms_thornparts_dif",
+            "uri" : "cmn_metal_ms_thornparts_dif.png"
         }
     ],
     "accessors" : [
@@ -363,6 +478,126 @@
             "componentType" : 5123,
             "count" : 86400,
             "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 16,
+            "componentType" : 5126,
+            "count" : 55,
+            "max" : [
+                0.6310366988182068,
+                0.6155003905296326,
+                0.6416969299316406
+            ],
+            "min" : [
+                -0.6310366988182068,
+                -0.6155002117156982,
+                -0.6416969299316406
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 17,
+            "componentType" : 5126,
+            "count" : 55,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 18,
+            "componentType" : 5126,
+            "count" : 55,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 19,
+            "componentType" : 5126,
+            "count" : 55,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 20,
+            "componentType" : 5123,
+            "count" : 240,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 21,
+            "componentType" : 5126,
+            "count" : 168,
+            "max" : [
+                0.703798234462738,
+                0.674572229385376,
+                0.6387091279029846
+            ],
+            "min" : [
+                -0.703798234462738,
+                -0.6745724081993103,
+                -0.6387091279029846
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 22,
+            "componentType" : 5126,
+            "count" : 168,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 23,
+            "componentType" : 5126,
+            "count" : 168,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 24,
+            "componentType" : 5126,
+            "count" : 168,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 25,
+            "componentType" : 5123,
+            "count" : 336,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 26,
+            "componentType" : 5126,
+            "count" : 184,
+            "max" : [
+                1.140550971031189,
+                1.0296850204467773,
+                0.9379618167877197
+            ],
+            "min" : [
+                -1.140550971031189,
+                -1.0296859741210938,
+                -0.9379618167877197
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 27,
+            "componentType" : 5126,
+            "count" : 184,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 28,
+            "componentType" : 5126,
+            "count" : 184,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 29,
+            "componentType" : 5126,
+            "count" : 184,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 30,
+            "componentType" : 5123,
+            "count" : 546,
+            "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
@@ -445,11 +680,86 @@
             "buffer" : 0,
             "byteLength" : 172800,
             "byteOffset" : 1434368
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 660,
+            "byteOffset" : 1607168
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 660,
+            "byteOffset" : 1607828
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 440,
+            "byteOffset" : 1608488
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 880,
+            "byteOffset" : 1608928
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 480,
+            "byteOffset" : 1609808
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2016,
+            "byteOffset" : 1610288
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2016,
+            "byteOffset" : 1612304
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1344,
+            "byteOffset" : 1614320
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2688,
+            "byteOffset" : 1615664
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 672,
+            "byteOffset" : 1618352
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2208,
+            "byteOffset" : 1619024
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2208,
+            "byteOffset" : 1621232
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1472,
+            "byteOffset" : 1623440
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2944,
+            "byteOffset" : 1624912
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1092,
+            "byteOffset" : 1627856
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 1607168,
+            "byteLength" : 1628948,
             "uri" : "scene.bin"
         }
     ]

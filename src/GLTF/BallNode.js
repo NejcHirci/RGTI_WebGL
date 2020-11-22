@@ -113,7 +113,7 @@ export default class BallNode extends GLTFNode {
                 setTimeout(() => {
                     this.jumping = false;
                 }, 400)
-                vec3.scale(acc, acc, this.jumpAcceleration);
+                vec3.scale(acc, acc, this.waterAcc);
             }
         }
 
@@ -164,6 +164,7 @@ export default class BallNode extends GLTFNode {
 
 BallNode.defaults = {
     velocity         : [0, 0, 0],
-    acceleration     : 30,
-    jumpAcceleration : 40
+    acceleration     : 45,
+    jumpAcceleration : 20,
+    waterAcc: 20
 };
