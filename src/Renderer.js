@@ -260,7 +260,6 @@ export default class Renderer {
         gl.uniform3fv(program.uniforms.uSpecularColor, color);
         gl.uniform1f(program.uniforms.uShininess, light.shininess);
         gl.uniform3fv(program.uniforms.uLightPosition, light.position);
-        gl.uniform3fv(program.uniforms.uLightAttenuation, light.attenuatuion);
 
         scene.traverse(
             node => {
