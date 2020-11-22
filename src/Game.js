@@ -19,7 +19,8 @@ const objectTypes = {
     WATER: 'water',
     LAND: 'land',
     BALL: 'ball',
-    CAMERA: 'camera'
+    CAMERA: 'camera',
+    GOAL: 'goal'
 }
 
 class App extends Application {
@@ -85,8 +86,6 @@ class App extends Application {
 
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
-
-        console.log(this.scene);
 
         this.renderer.prepare(this.scene, this.gltfScene, this.skybox);
 
@@ -154,9 +153,20 @@ class App extends Application {
             });
         }
 
+        if (this.levelGenerator.endPos) {
+            this.world.add({
+                type: 'sphere',
+                size: [0.95],
+                pos: this.levelGenerator.endPos,
+                move: false,
+                name: objectTypes.GOAL
+            });
+        }
+
+        /*
         if (this.camera) {
             // v worldProperties se belezijo vsi trenutni physicsi o zogi
-           /* this.camera.worldProperties = this.world.add({
+           this.camera.worldProperties = this.world.add({
                 type:'sphere', // type of shape : sphere, box, cylinder
                 size:[5], // size of shape
                 pos:this.camera.translation, // start position in degree
@@ -167,8 +177,8 @@ class App extends Application {
                 restitution: 0.2,
                 collidesWith: 0xffffffff,// The bits of the collision groups with which the shape collides.
                 name: objectTypes.CAMERA
-            });*/
-        }
+            });
+        }*/
     }
 
     enableCamera() {
