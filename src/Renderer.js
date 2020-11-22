@@ -12,6 +12,8 @@ export default class Renderer {
         this.glObjects = new Map();
         this.programs = WebGL.buildPrograms(gl, shaders);
 
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
         gl.clearColor(1, 1, 1, 1);
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.CULL_FACE);
@@ -26,6 +28,15 @@ export default class Renderer {
             min:gl.NEAREST,
             wrapS:gl.CLAMP_TO_EDGE,
             wrapT:gl.CLAMP_TO_EDGE
+        });
+
+        this.skyboxSampler = WebGL.createSampler(gl, {
+            mag: gl.LINEAR,
+            min: gl.LINEAR,
+            wrapS: gl.CLAMP_TO_EDGE,
+            wrapT: gl.CLAMP_TO_EDGE,
+            wrapR: gl.CLAMP_TO_EDGE
+
         });
     }
 
@@ -196,25 +207,30 @@ export default class Renderer {
     prepareSkybox(skybox) {
         const gl = this.gl;
 
-        const vao = gl.createVertexArray();
-        gl.bindVertexArray(vao);
-        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-        gl.bufferData(gl.ARRAY_BUFFER, skybox.vertices, gl.STATIC_DRAW);
+        console.log(skybox);
+        skybox.gl = {};
 
+        let vao = gl.createVertexArray();
+        gl.bindVertexArray(vao);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ARRAY_BUFFER, skybox.positions, gl.STATIC_DRAW);
         gl.enableVertexAttribArray(0);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
         let texture = gl.createTexture();
-        gl.activeTexture(gl.TEXTURE0);
+        gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-        skybox.cubemap.forEach((face) => {
-            const {target, img} = face;
-            gl.texImage2D(target, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-        });
-        gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
 
-        skybox.gl.vao = vao;
+        for (let i=0; i < 6; i++) {
+            gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skybox.image[i]);
+        }
+
+        gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+
         skybox.gl.texture = texture;
+        skybox.gl.vao = vao;
     }
 
     render(scene, camera, light, gltfScene, skybox) {
@@ -284,18 +300,13 @@ export default class Renderer {
         //RENDER SKYBOX
         program = this.programs.skybox;
         gl.useProgram(program.program);
-        let viewSky = mat4.copy([], viewMatrix);
-        viewSky[12] = 0; viewSky[13] = 0; viewSky[14] = 0;
-        let viewDirProjMat = mat4.mul([], camera.projection, viewSky);
-        let viewDirProjInv = mat4.invert([], viewDirProjMat);
 
         gl.bindVertexArray(skybox.gl.vao);
-        gl.uniformMatrix4fv(program.uniforms.uViewMat, false, viewDirProjInv);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox.gl.texture);
-        gl.bindSampler(0, this.defaultSampler);
-        gl.uniform1i(program.uniforms.uSkybox, 0);
+        let mat = skybox.getInverse(viewMatrix, camera.projection);
+        gl.uniformMatrix4fv(program.uniforms.uMatrix, false, mat);
+        gl.uniform1i(program.uniforms.uSkybox, 1);
         gl.depthFunc(gl.LEQUAL);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        gl.drawArrays(gl.TRIANGLES, 0, 1 * 6);
     }
 
     renderBallNode(node, mvpMatrix, program) {

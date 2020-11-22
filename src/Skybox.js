@@ -1,63 +1,26 @@
-import Node from './Node.js';
-import Utils from "./Utils.js";
+import Model from "./Model.js";
 
-export default class Skybox extends Node {
+const mat4 = glMatrix.mat4;
 
-    constructor(gl, options) {
-        super(options);
-        Utils.init(this, this.constructor.defaults, options);
-        this.gl = gl;
-        this.loadImages();
-        console.log(this);
+export default class Skybox extends Model {
+
+    constructor(images, options) {
+        super(null, images, options);
+
+        this.positions = new Float32Array([
+            -1, -1,
+             1, -1,
+            -1,  1,
+            -1,  1,
+             1, -1,
+             1,  1
+        ]);
     }
 
-    async loadImages() {
-        const gl = this.gl;
-        let textures = this.cubemap.map(img => this.loadImage(img));
-        let images = await Promise.all(textures);
+    getInverse(viewMatrix, projectionMatrix) {
+        viewMatrix[12] = 0; viewMatrix[13] = 0; viewMatrix[14] = 0;
+        let viewDirectionProjectionMatrix = mat4.mul([], projectionMatrix, viewMatrix);
 
-        this.cubemap = [
-            {
-                target: gl.TEXTURE_CUBE_MAP_POSITIVE_X,
-                img: images[0]
-            },
-            {
-                target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
-                img: images[1]
-            },
-            {
-                target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
-                img: images[2]
-            },
-            {
-                target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-                img: images[3]
-            },
-            {
-                target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
-                img: images[4]
-            },
-            {
-                target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
-                img: images[5]
-            }
-        ]
-        console.log(this.cubemap);
-    }
-
-    loadImage(uri) {
-        return new Promise((resolve, reject) => {
-            let image = new Image();
-            image.addEventListener('load', () => resolve(image));
-            image.addEventListener('error', reject);
-            image.src = uri;
-        });
+        return mat4.invert([], viewDirectionProjectionMatrix);
     }
 }
-
-
-Skybox.defaults = {
-    vertices: [],
-    cubemap: ["../public/images/sky.jpg", "../public/images/sky.jpg", "../public/images/sky.jpg",
-        "../public/images/sky.jpg", "../public/images/sky.jpg", "../public/images/sky.jpg"]
-};
