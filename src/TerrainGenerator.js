@@ -204,9 +204,11 @@ export default class TerrainGenerator {
     generateTexture(heightMap) {
         let buffer = new Uint8ClampedArray(this.mapSize * this.mapSize * 4);
 
-        for(let y = 0; y < this.mapSize; y++) {
-            for (let x = 0; x < this.mapSize; x++) {
-                let pos = (y * this.mapSize + x) * 4;
+        let size = heightMap.length;
+
+        for(let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                let pos = (y * size + x) * 4;
                 let color = this.getColor(heightMap[y][x]);
 
                 buffer[pos] = color[0];
@@ -216,24 +218,52 @@ export default class TerrainGenerator {
             }
         }
 
-        // create off-screen canvas element
-        let canvas = document.createElement('canvas'),
-            ctx = canvas.getContext('2d');
-
-        canvas.width = this.mapSize;
-        canvas.height = this.mapSize;
-
-        // create imageData object
-        let idata = ctx.createImageData(this.mapSize, this.mapSize);
-
-        // set our buffer as source
-        idata.data.set(buffer);
-
-        // update canvas with new data
-        ctx.putImageData(idata, 0, 0);
-        let image = new Image();
-        image.src = canvas.toDataURL();
         return new ImageData(buffer, this.mapSize, this.mapSize);
+    }
+
+    generateOceanTexture(size) {
+        let buffer = new Uint8ClampedArray(size * size * 4);
+        let color = this.getColor(0);
+
+        for(let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                let pos = (y * size + x) * 4;
+                buffer[pos] = color[0];
+                buffer[pos+1] = color[1];
+                buffer[pos+2] = color[2];
+                buffer[pos+3] = 255;
+            }
+        }
+
+        return new ImageData(buffer, size, size);
+
+    }
+
+    generateOceanMesh() {
+
+        let mesh = new Mesh(Mesh.defaults);
+
+        let topLeftX = (this.mapSize - 1) / -2;
+        let topLeftZ = (this.mapSize - 1) / 2;
+        let normal = vec3.fromValues(0, 1, 0);
+
+        // Calculate coordinates
+        let vertInd = 0;
+        for (let y = 0; y < this.mapSize; y++) {
+            for (let x = 0; x < this.mapSize; x++) {
+                mesh.vertices.push(topLeftX + x, 0.0, topLeftZ - y);
+                mesh.texcoords.push(x / this.mapSize, y / this.mapSize);
+                if (x < this.mapSize - 1 && y < this.mapSize - 1) {
+                    mesh.indices.push(vertInd, vertInd + this.mapSize + 1, vertInd + this.mapSize);
+                    mesh.indices.push(vertInd + this.mapSize + 1, vertInd, vertInd + 1);
+                }
+                mesh.normals.push(normal[0], normal[1], normal[2]);
+
+                vertInd++
+            }
+        }
+
+        return mesh;
     }
 
 }

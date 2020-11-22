@@ -15,6 +15,8 @@ export default class LevelGenerator {
         //(1) Generate terrain
         this.createIsland();
 
+        this.createOcean();
+
         //(2) Set Start and Goal position and add Goal object
         this.createStartAndGoal();
 
@@ -36,6 +38,28 @@ export default class LevelGenerator {
         console.log(this.levelNode);
 
         this.scene.addNode(this.levelNode);
+    }
+
+    createOcean() {
+        let size = 2;
+
+        let mesh = this.terrainGen.generateOceanMesh(size);
+        let texture = this.terrainGen.generateOceanTexture(size);
+
+        //Create 9 models
+        let mapSize = this.terrainGen.mapSize;
+        let offsetsX = [-240,-240,-240,   0,  0, 240, 240, 240];
+        let offsetsZ = [-240,   0, 240,-240,240,-240, 0, 240];
+        for (let i = 0; i < 8; i++) {
+            let x = offsetsX[i];
+            let z = offsetsZ[i];
+            let mod = new Model(
+                new Mesh(mesh),
+                texture,
+                {translation: [x, -0.0001, z]}
+            );
+            this.scene.addNode(mod);
+        }
     }
 
     createStartAndGoal() {

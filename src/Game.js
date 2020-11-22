@@ -86,8 +86,8 @@ class App extends Application {
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
 
-        console.log(this.skybox);
         console.log(this.scene);
+
         this.renderer.prepare(this.scene, this.gltfScene, this.skybox);
 
         this.initPhysics();
@@ -111,7 +111,6 @@ class App extends Application {
         let x,y,z;
         let r = 0.05;
         let terrainMesh = this.levelGenerator.levelNode.mesh;
-        console.log(this.levelGenerator);
         for ( let i = 0; i < terrainMesh.vertices.length;  i += 3 ) {
 
             if (terrainMesh.vertices[ i+1 ] > 0.75) {
@@ -133,8 +132,8 @@ class App extends Application {
 
             const size = this.levelGenerator.terrainGen.mapSize;
 
-            let x = this.world.add({type:'box', size:[size, 1 , size], pos:[0,-1,0], move:false, name: objectTypes.WATER});
-            console.log(x);
+            let x = this.world.add({type:'box', size:[size*3, 1 , size*3], pos:[0,-1,0], move:false, name: objectTypes.WATER});
+
         } else {
             Error.log("Terrain generator missing!");
         }
