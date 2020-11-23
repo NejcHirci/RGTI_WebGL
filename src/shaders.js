@@ -51,7 +51,7 @@ void main() {
     float diff = max(0.0, dot(L, N));
     diff = smoothstep(0.0, 1.0, diff);
     diff = floor(diff * 7.0) / 7.0;
-    vec3 diffuse = diff * uDiffuseColor * 0.7;
+    vec3 diffuse = diff * uDiffuseColor;
     
     float ambientStrength = 0.8;
     vec3 ambient = ambientStrength * uAmbientColor;
