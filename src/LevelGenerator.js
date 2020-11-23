@@ -2,13 +2,40 @@ import TerrainGenerator from "./TerrainGenerator.js";
 import Mesh from "./Mesh.js";
 import Model from "./Model.js";
 
+const vec3 = glMatrix.vec3;
+
 export default class LevelGenerator {
 
     constructor(seed, scene) {
+        this.level = 0;
         this.terrainGen = new TerrainGenerator(241, 50, 5, 0.2, 2, 18);
         this.seed = seed;
         this.scene = scene;
         this.mesh = [];
+
+        this.colorSchemes = [
+            {
+                colors: [
+                    vec3.fromValues(66,121,229),
+                    vec3.fromValues(210, 208, 125),
+                    vec3.fromValues(86, 152, 23),
+                    vec3.fromValues(62, 107, 18),
+                    vec3.fromValues(85, 71, 69),
+                    vec3.fromValues(255, 255,255)
+                ]
+            },
+            {
+                colors: [
+                    vec3.fromValues(66,121,229),
+                    vec3.fromValues(242, 196, 56),
+                    vec3.fromValues(217, 155, 41),
+                    vec3.fromValues(217, 73, 41),
+                    vec3.fromValues(115, 41, 47),
+                    vec3.fromValues(255, 255,255)
+                ]
+
+            }
+        ]
     }
 
     next() {
@@ -25,6 +52,7 @@ export default class LevelGenerator {
     }
 
     createIsland() {
+        this.setColorScheme();
         let heightMap = this.terrainGen.generateNoiseMap(this.seed++);
         let tex = this.terrainGen.generateTexture(heightMap);
         let mesh = this.terrainGen.generateMesh(heightMap);
@@ -38,6 +66,12 @@ export default class LevelGenerator {
         console.log(this.levelNode);
 
         this.scene.addNode(this.levelNode);
+        this.level++;
+    }
+
+    setColorScheme() {
+        let i = this.level % this.colorSchemes.length;
+        this.terrainGen.colorRegions.colors = this.colorSchemes[i].colors;
     }
 
     createOcean() {
@@ -81,7 +115,7 @@ export default class LevelGenerator {
             y = map[i+1];
             z = map[i+2];
             if (y > 0.35 * this.terrainGen.heightMult) {
-                this.endPos = [x, y - 2, z];
+                this.endPos = [x, y - 1, z];
                 break;
             }
         }

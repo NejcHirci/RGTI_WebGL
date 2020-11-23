@@ -109,7 +109,12 @@ export default class GLTFNode {
         }
     }
 
-
+    clone() {
+        return new GLTFNode({
+            ...this,
+            children: this.children.map(child => child.clone()),
+        });
+    }
 }
 
 

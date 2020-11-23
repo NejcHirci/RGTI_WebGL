@@ -45,7 +45,6 @@ class App extends Application {
         this.light = new Light();
 
         this.dead = false;
-        this.levelComplete = false;
         this.paused = true;
         this.gameStart = false;
 
@@ -57,6 +56,8 @@ class App extends Application {
         document.addEventListener('pointerlockerror', () => this.canvas.requestPointerLock(), false);
         document.addEventListener('mozpointerlockerror', () => this.canvas.requestPointerLock(), false);
         document.addEventListener('webkitpointerlockerror', () => this.canvas.requestPointerLock(), false);
+
+        document.getElementById("button").disabled = true;
 
         this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock  || this.canvas.webkitRequestPointerLock;
         this.canvas.addEventListener('click', () => this.canvas.requestPointerLock());
@@ -72,13 +73,11 @@ class App extends Application {
 
         // load the baller
         await this.gltfLoader.load('../../public/models/gltfScene/scene.gltf');
-        this.gltfScene = await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
+        this.initGltfScene = await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
+        this.initScene = await new SceneLoader().loadScene(uri);
+        this.skybox = new Skybox(this.initScene.textures);
 
-
-        const scene = await new SceneLoader().loadScene(uri);
-        this.skybox = new Skybox(scene.textures);
-
-        this.loadLevel(scene);
+        this.loadLevel();
     }
 
 
@@ -153,7 +152,7 @@ class App extends Application {
         if (this.levelGenerator.endPos) {
             this.world.add({
                 type: 'sphere',
-                size: [0.95],
+                size: [2],
                 pos: this.levelGenerator.endPos,
                 move: false,
                 name: objectTypes.GOAL
@@ -183,6 +182,7 @@ class App extends Application {
     }
 
     pointerlockchangeHandler() {
+        console.log(this.paused);
         if (!this.gameStart) this.gameStart = true;
 
         if (!this.camera) {
@@ -197,7 +197,11 @@ class App extends Application {
             this.camera.disable();
             this.ball.disable();
             this.paused = true;
-            this.enableMenu();
+            if (this.levelComplete) {
+                this.finishMenu();
+            } else {
+                this.enableMenu();
+            }
         }
     }
 
@@ -238,8 +242,11 @@ class App extends Application {
                     }
 
                 }
+                if(this.ball.isInContactWith([objectTypes.GOAL])) {
+                    this.levelComplete = true;
+                    document.exitPointerLock();
+                }
                 if (this.ball.hp <= 0) {
-                    this.ball.hp = 0;
                     console.log("HP: " + this.ball.hp);
                     console.log("YOU DEAD!");
                 }
@@ -301,6 +308,7 @@ class App extends Application {
         if (!this.gameStart) {
             document.getElementById("title").innerText = "Paused";
             document.getElementById("button").innerText = "CONTINUE";
+            document.getElementById("reloadButton").style.display = "block";
         }
         document.getElementById("menu").style.display = "none";
         document.getElementById("game-ui").style.display = "block";
@@ -308,9 +316,11 @@ class App extends Application {
         this.canvas.requestPointerLock();
     }
 
-    loadLevel(scene) {
-        const builder = new SceneBuilder(scene);
+    loadLevel() {
+        const builder = new SceneBuilder(this.initScene);
         this.scene = builder.build();
+
+        this.gltfScene = this.initGltfScene.clone();
 
         this.levelGenerator.scene = this.scene;
         this.levelGenerator.next();
@@ -326,6 +336,8 @@ class App extends Application {
         let gltfSceneFiltered = {
             nodes: []
         };
+
+        console.log(this.gltfScene);
 
         this.gltfScene.nodes.forEach(node => {
             if (node instanceof BallNode) {
@@ -360,10 +372,49 @@ class App extends Application {
         this.gltfScene = gltfSceneFiltered;
 
         this.initPhysics();
+
+        document.getElementById("button").disabled = false;
     }
 
     updateHealth() {
         $('.healthBarValue').animate({width: this.ball.hp.toString()+"%"}, 100);
+    }
+
+    finishMenu() {
+        const oofSound = document.getElementById("oof");
+        oofSound.muted = true;
+
+        document.getElementById("title").innerText = "Proceed to next island";
+        document.getElementById("button").style.display = "none";
+
+        document.getElementById("nextButton").style.display = "block";
+
+        document.getElementById("menu").style.display = "block";
+        document.getElementById("game-ui").style.display = "none";
+        $('#canvas').addClass('blur');
+    }
+
+    nextLevel() {
+        this.ball.hp = 100;
+        this.updateHealth();
+        this.paused = true;
+        this.gameStart = false;
+        this.levelComplete = false;
+
+        this.ball.disable();
+        this.camera.disable();
+        this.ball = null;
+        this.camera = null;
+        this.loadLevel();
+
+        document.getElementById("title").innerText = "Start next level";
+        document.getElementById("button").style.display = "block";
+        document.getElementById("button").innerText = "START";
+
+        document.getElementById("nextButton").style.display = "none";
+
+        document.getElementById("menu").style.display = "block";
+        document.getElementById("game-ui").style.display = "none";
     }
 
 }
@@ -376,4 +427,9 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', () => {
         app.disableMenu();
     });
+
+    const nextButton = document.getElementById("nextButton");
+    nextButton.addEventListener('click', () => {
+        app.nextLevel()
+    })
 });

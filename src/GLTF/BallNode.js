@@ -136,6 +136,13 @@ export default class BallNode extends GLTFNode {
 
     }
 
+    clone() {
+        return new BallNode({
+            ...this,
+            children: this.children.map(child => child.clone()),
+        });
+    }
+
 }
 
 BallNode.defaults = {

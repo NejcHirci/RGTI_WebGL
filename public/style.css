@@ -103,7 +103,7 @@ canvas {
     float: right;
     height:100px;
     width: 450px;
-    background:#267DFF;
+    background: #267dff;
     text-align:center;
     font-size:48px;
     font-stretch: expanded;
@@ -113,12 +113,20 @@ canvas {
     font-weight: bold;
     color:#d1d4e0;
     font-family: 'Ubuntu', sans-serif;
+}
+
+.btn:enabled {
     cursor:pointer;
 }
 
-.btn:hover {
+.btn:hover:enabled {
     background:#86c7e5;
     color:#e4f6e8;
     -webkit-transform:rotate(-1deg);
     transform:rotate(-2deg);
+}
+
+.btn:disabled {
+    background: gray;
+    color:lightgray;
 }
