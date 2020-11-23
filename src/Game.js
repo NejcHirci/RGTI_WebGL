@@ -183,6 +183,7 @@ class App extends Application {
         if (!this.camera) {
             return;
         }
+
         if (document.pointerLockElement === this.canvas) {
             this.camera.enable();
             this.ball.enable();
@@ -244,7 +245,7 @@ class App extends Application {
             this.ball.updateMatrix();
 
             // update obstacles
-            this.obstacleHandler.updateSpikes(this.gltfScene);
+            if (!this.paused) this.obstacleHandler.updateSpikes(this.gltfScene);
         }
 
         if (this.camera) {
