@@ -29,7 +29,7 @@ canvas {
     top: 0;
 }
 
-.intro {
+.menu {
     display: inline-block;
     position:absolute;
     top: 50%;
@@ -41,7 +41,7 @@ canvas {
     font-family: 'Ubuntu', sans-serif;
 }
 
-.intro-title {
+.title {
     width: 80%;
     margin: auto;
     font-weight: 700;
@@ -51,13 +51,13 @@ canvas {
     padding-bottom: 300px;
 }
 
-.intro-buttons {
+.buttons {
     position: relative;
     height: 100px;
     text-align: center;
 }
 
-.intro-buttons #start {
+.btn {
     position: relative;
     float: right;
     height:100px;
@@ -75,7 +75,7 @@ canvas {
     cursor:pointer;
 }
 
-.deathButtons #start:hover {
+.btn:hover {
     background:#86c7e5;
     color:#e4f6e8;
     -webkit-transform:rotate(-1deg);

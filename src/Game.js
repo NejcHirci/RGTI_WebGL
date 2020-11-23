@@ -44,16 +44,18 @@ class App extends Application {
         this.aspect = 1;
         this.light = new Light();
 
-        this.gameStart = false;
         this.dead = false;
         this.levelComplete = false;
         this.paused = true;
+        this.gameStart = false;
 
         this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
         document.addEventListener('pointerlockchange', this.pointerlockchangeHandler);
 
         this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock  || this.canvas.webkitRequestPointerLock;
         this.canvas.addEventListener('click', () => this.canvas.requestPointerLock());
+
+        this.levelGenerator = new LevelGenerator(23, null);
 
         this.load('./src/scene.json');
     }
@@ -70,61 +72,7 @@ class App extends Application {
         const scene = await new SceneLoader().loadScene(uri);
         this.skybox = new Skybox(scene.textures);
 
-        const builder = new SceneBuilder(scene);
-        this.scene = builder.build();
-
-
-        this.levelGenerator = new LevelGenerator(23, this.scene);
-        this.levelGenerator.next();
-
-        // Find camera and goal
-        this.camera = null;
-        this.scene.traverse(node => {
-            if (node instanceof Camera) {
-                this.camera = new Camera(node);
-            }
-        });
-
-        let gltfSceneFiltered = {
-            nodes: []
-        };
-
-        this.gltfScene.nodes.forEach(node => {
-            if (node instanceof BallNode) {
-                this.ball = new BallNode();
-                this.ball = node;
-                this.ball.addChild(this.camera);
-                this.ball.translation = this.levelGenerator.startPos;
-                gltfSceneFiltered.nodes.push(node);
-            } else if (node.name === 'pipe')  {
-                node.translation = this.levelGenerator.endPos;
-                node.updateMatrix();
-                gltfSceneFiltered.nodes.push(node);
-            } else if (node.name === 'spikey') {
-                let n;
-                for(let i = 1; i < 250; i++) {
-                    n = new GLTFNode(node);
-                    gltfSceneFiltered.nodes.push(n);
-                }
-            }
-        });
-
-
-
-        const obstacleHandlerOptions = {
-            mapSize: this.levelGenerator.terrainGen.mapSize
-        }
-
-        this.obstacleHandler = new ObstacleHandler(obstacleHandlerOptions);
-
-        this.camera.aspect = this.aspect;
-        this.camera.updateProjection();
-
-        this.renderer.prepare(this.scene, this.gltfScene, this.skybox);
-        // dodaj vse obstacle
-        this.gltfScene = gltfSceneFiltered;
-
-        this.initPhysics();
+        this.loadLevel(scene);
     }
 
 
@@ -228,17 +176,9 @@ class App extends Application {
         }*/
     }
 
-    enableCamera() {
-        this.canvas.requestPointerLock();
-    }
-
     pointerlockchangeHandler() {
-        if (!this.gameStart) {
-            this.paused = false;
-            this.gameStart = true;
-        } else {
-            this.paused = !this.paused;
-        }
+        if (!this.gameStart) this.gameStart = true;
+        this.paused = !this.paused
 
         if (!this.camera) {
             return;
@@ -249,10 +189,13 @@ class App extends Application {
         } else {
             this.camera.disable();
             this.ball.disable();
+            this.enableMenu();
         }
     }
 
     update() {
+        if (this.levelComplete) {return}
+
         const t = this.time = Date.now();
         const dt = (this.time - this.startTime) * 0.001;
         this.startTime = this.time;
@@ -309,7 +252,6 @@ class App extends Application {
         }
 
         if (this.world && !this.paused) {
-            console.log("Ali posodobimo fizike");
             this.world.step();
         }
     }
@@ -335,14 +277,71 @@ class App extends Application {
         sound.play();
     }
 
-    togglePause() {
-        this.pauseMenu.style.display = this.paused? "block" : "none";
+    enableMenu() {
+        document.getElementById("menu").style.display = "block";
     }
 
-    startGame() {
-        document.getElementById("intro").style.display = "none";
-
+    disableMenu() {
+        if (!this.gameStart) {
+            document.getElementById("title").innerText = "Paused";
+            document.getElementById("button").innerText = "CONTINUE";
+        }
+        document.getElementById("menu").style.display = "none";
         this.canvas.requestPointerLock();
+    }
+
+    loadLevel(scene) {
+        const builder = new SceneBuilder(scene);
+        this.scene = builder.build();
+
+        this.levelGenerator.scene = this.scene;
+        this.levelGenerator.next();
+
+        // Find camera and goal
+        this.camera = null;
+        this.scene.traverse(node => {
+            if (node instanceof Camera) {
+                this.camera = new Camera(node);
+            }
+        });
+
+        let gltfSceneFiltered = {
+            nodes: []
+        };
+
+        this.gltfScene.nodes.forEach(node => {
+            if (node instanceof BallNode) {
+                this.ball = new BallNode();
+                this.ball = node;
+                this.ball.addChild(this.camera);
+                this.ball.translation = this.levelGenerator.startPos;
+                gltfSceneFiltered.nodes.push(node);
+            } else if (node.name === 'pipe')  {
+                node.translation = this.levelGenerator.endPos;
+                node.updateMatrix();
+                gltfSceneFiltered.nodes.push(node);
+            } else if (node.name === 'spikey') {
+                let n;
+                for(let i = 1; i < 250; i++) {
+                    n = new GLTFNode(node);
+                    gltfSceneFiltered.nodes.push(n);
+                }
+            }
+        });
+
+        const obstacleHandlerOptions = {
+            mapSize: this.levelGenerator.terrainGen.mapSize
+        }
+
+        this.obstacleHandler = new ObstacleHandler(obstacleHandlerOptions);
+
+        this.camera.aspect = this.aspect;
+        this.camera.updateProjection();
+
+        this.renderer.prepare(this.scene, this.gltfScene, this.skybox);
+        this.gltfScene = gltfSceneFiltered;
+
+        this.initPhysics();
     }
 
 }
@@ -351,6 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('canvas');
     const app = new App(canvas);
 
-    const startButton = document.getElementById("start");
-    startButton.addEventListener('click', () => app.startGame());
+    const button = document.getElementById("button");
+    button.addEventListener('click', () => app.disableMenu());
 });
