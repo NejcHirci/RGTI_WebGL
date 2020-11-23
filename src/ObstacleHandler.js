@@ -106,7 +106,7 @@ export default class ObstacleHandler {
 
         return {
             type:'sphere',
-            size:[1.5],
+            size:[1.2],
             pos: [x, y, z],
             move: true, // dynamic or statique
             density: 1,

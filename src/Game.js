@@ -38,19 +38,22 @@ class App extends Application {
 
     start() {
         const gl = this.gl;
-        this.waitForLoad = false;
-
         this.renderer = new Renderer(gl);
-
         this.time = Date.now();
         this.startTime = this.time;
         this.aspect = 1;
         this.light = new Light();
-        this.healthBar = document.getElementById("healthBar");
 
+        this.gameStart = false;
+        this.dead = false;
+        this.levelComplete = false;
+        this.paused = true;
 
         this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
         document.addEventListener('pointerlockchange', this.pointerlockchangeHandler);
+
+        this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock  || this.canvas.webkitRequestPointerLock;
+        this.canvas.addEventListener('click', () => this.canvas.requestPointerLock());
 
         this.load('./src/scene.json');
     }
@@ -71,7 +74,7 @@ class App extends Application {
         this.scene = builder.build();
 
 
-        this.levelGenerator = new LevelGenerator(82, this.scene);
+        this.levelGenerator = new LevelGenerator(23, this.scene);
         this.levelGenerator.next();
 
         // Find camera and goal
@@ -81,8 +84,6 @@ class App extends Application {
                 this.camera = new Camera(node);
             }
         });
-
-        let spikeyNum = 30;
 
         let gltfSceneFiltered = {
             nodes: []
@@ -128,7 +129,7 @@ class App extends Application {
 
 
     initPhysics(){
-
+        this.paused = true;
         // Create physics world
         this.world = new OIMO.World({
             timestep: 1/60,
@@ -232,12 +233,17 @@ class App extends Application {
     }
 
     pointerlockchangeHandler() {
+        if (!this.gameStart) {
+            this.paused = false;
+            this.gameStart = true;
+        } else {
+            this.paused = !this.paused;
+        }
+
         if (!this.camera) {
             return;
         }
-
         if (document.pointerLockElement === this.canvas) {
-            this.playSound('theme');
             this.camera.enable();
             this.ball.enable();
         } else {
@@ -288,8 +294,6 @@ class App extends Application {
 
             this.ball.move(dt);
 
-            this.healthBar.value = this.ball.hp
-
             let properties = this.ball.worldProperties;
 
             this.ball.translation = [(properties.position.x), (properties.position.y), (properties.position.z)];
@@ -304,11 +308,10 @@ class App extends Application {
             this.camera.updateTransform();
         }
 
-        if (this.world) {
+        if (this.world && !this.paused) {
+            console.log("Ali posodobimo fizike");
             this.world.step();
         }
-
-
     }
 
     render() {
@@ -332,16 +335,22 @@ class App extends Application {
         sound.play();
     }
 
+    togglePause() {
+        this.pauseMenu.style.display = this.paused? "block" : "none";
+    }
+
+    startGame() {
+        document.getElementById("intro").style.display = "none";
+
+        this.canvas.requestPointerLock();
+    }
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('canvas');
     const app = new App(canvas);
-    const gui = new dat.GUI();
-    gui.add(app, 'enableCamera');
+
+    const startButton = document.getElementById("start");
+    startButton.addEventListener('click', () => app.startGame());
 });
-
-function startGame() {
-
-
-}

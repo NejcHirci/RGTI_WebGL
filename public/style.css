@@ -4,13 +4,18 @@ body, html {
 }
 
 * {
-    font-family: sans-serif;
+    font-family: 'Ubuntu', sans-serif;
 }
 
 .fullscreen {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+}
+
+canvas {
+    background: url("./images/loading.gif") center;
+    background-size: cover;
 }
 
 .fullscreen > * {
@@ -24,16 +29,55 @@ body, html {
     top: 0;
 }
 
-a.back {
-    display: block;
-    padding: 5px 10px;
-    background: #fff;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    text-decoration: none;
-    color: #000;
+.intro {
+    display: inline-block;
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    width: 80%;
+    height: auto;
+    transform: translate(-50%,-50%);
+    text-align: center;
+    font-family: 'Ubuntu', sans-serif;
 }
 
-a.back:hover {
-    background: #ddd;
+.intro-title {
+    width: 80%;
+    margin: auto;
+    font-weight: 700;
+    font-size: 120px;
+    color: white;
+    text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
+    padding-bottom: 300px;
+}
+
+.intro-buttons {
+    position: relative;
+    height: 100px;
+    text-align: center;
+}
+
+.intro-buttons #start {
+    position: relative;
+    float: right;
+    height:100px;
+    width: 450px;
+    background:#267DFF;
+    text-align:center;
+    font-size:48px;
+    font-stretch: expanded;
+    background-size: 1px 300%;
+    -webkit-transition:0.5s;
+    transition:0.5s;
+    font-weight: bold;
+    color:#d1d4e0;
+    font-family: 'Ubuntu', sans-serif;
+    cursor:pointer;
+}
+
+.deathButtons #start:hover {
+    background:#86c7e5;
+    color:#e4f6e8;
+    -webkit-transform:rotate(-1deg);
+    transform:rotate(-2deg);
 }
