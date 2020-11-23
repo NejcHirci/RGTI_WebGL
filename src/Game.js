@@ -220,6 +220,7 @@ class App extends Application {
                         this.playSound('oof');
                         console.log("OUCH!!");
                         console.log("HP: " + this.ball.hp);
+                        this.updateHealth();
 
                     }
                 }
@@ -233,6 +234,7 @@ class App extends Application {
                         this.playSound('oof');
                         console.log("OOF!!");
                         console.log("HP: " + this.ball.hp);
+                        this.updateHealth();
                     }
 
                 }
@@ -289,6 +291,8 @@ class App extends Application {
         const oofSound = document.getElementById("oof");
         oofSound.muted = true;
         document.getElementById("menu").style.display = "block";
+        document.getElementById("game-ui").style.display = "none";
+        $('#canvas').addClass('blur');
     }
 
     disableMenu() {
@@ -299,6 +303,8 @@ class App extends Application {
             document.getElementById("button").innerText = "CONTINUE";
         }
         document.getElementById("menu").style.display = "none";
+        document.getElementById("game-ui").style.display = "block";
+        $('#canvas').removeClass('blur');
         this.canvas.requestPointerLock();
     }
 
@@ -354,6 +360,10 @@ class App extends Application {
         this.gltfScene = gltfSceneFiltered;
 
         this.initPhysics();
+    }
+
+    updateHealth() {
+        $('.healthBarValue').animate({width: this.ball.hp.toString()+"%"}, 100);
     }
 
 }
