@@ -51,6 +51,12 @@ class App extends Application {
 
         this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
         document.addEventListener('pointerlockchange', this.pointerlockchangeHandler);
+        document.addEventListener('mozpointerlockchange', this.pointerlockchangeHandler);
+        document.addEventListener('webkitpointerlockchange', this.pointerlockchangeHandler);
+
+        document.addEventListener('pointerlockerror', () => this.canvas.requestPointerLock(), false);
+        document.addEventListener('mozpointerlockerror', () => this.canvas.requestPointerLock(), false);
+        document.addEventListener('webkitpointerlockerror', () => this.canvas.requestPointerLock(), false);
 
         this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock  || this.canvas.webkitRequestPointerLock;
         this.canvas.addEventListener('click', () => this.canvas.requestPointerLock());
@@ -178,7 +184,6 @@ class App extends Application {
 
     pointerlockchangeHandler() {
         if (!this.gameStart) this.gameStart = true;
-        this.paused = !this.paused
 
         if (!this.camera) {
             return;
@@ -187,9 +192,11 @@ class App extends Application {
         if (document.pointerLockElement === this.canvas) {
             this.camera.enable();
             this.ball.enable();
+            this.paused = false;
         } else {
             this.camera.disable();
             this.ball.disable();
+            this.paused = true;
             this.enableMenu();
         }
     }
@@ -279,10 +286,14 @@ class App extends Application {
     }
 
     enableMenu() {
+        const oofSound = document.getElementById("oof");
+        oofSound.muted = true;
         document.getElementById("menu").style.display = "block";
     }
 
     disableMenu() {
+        const oofSound = document.getElementById("oof");
+        oofSound.muted = false;
         if (!this.gameStart) {
             document.getElementById("title").innerText = "Paused";
             document.getElementById("button").innerText = "CONTINUE";
@@ -352,5 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = new App(canvas);
 
     const button = document.getElementById("button");
-    button.addEventListener('click', () => app.disableMenu());
+    button.addEventListener('click', () => {
+        app.disableMenu();
+    });
 });
