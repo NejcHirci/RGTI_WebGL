@@ -11,14 +11,14 @@
     }
   ],
   "textures": [
-    "../public/images/skybox/x_plus.png",
-    "../public/images/skybox/x_minus.png",
-    "../public/images/skybox/y_plus.png",
-    "../public/images/skybox/y_minus.png",
-    "../public/images/skybox/z_plus.png",
-    "../public/images/skybox/z_minus.png"
+    "../static/images/skybox/x_plus.png",
+    "../static/images/skybox/x_minus.png",
+    "../static/images/skybox/y_plus.png",
+    "../static/images/skybox/y_minus.png",
+    "../static/images/skybox/z_plus.png",
+    "../static/images/skybox/z_minus.png"
   ],
   "meshes": [
-    "../public/models/cube.json"
+    "../static/models/cube.json"
   ]
 }

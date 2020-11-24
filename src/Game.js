@@ -72,7 +72,7 @@ class App extends Application {
         this.gltfLoader = new GLTFLoader();
 
         // load the baller
-        await this.gltfLoader.load('../../public/models/gltfScene/scene.gltf');
+        await this.gltfLoader.load('../../static/models/gltfScene/scene.gltf');
         this.initGltfScene = await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
         this.initScene = await new SceneLoader().loadScene(uri);
         this.skybox = new Skybox(this.initScene.textures);
