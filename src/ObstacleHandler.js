@@ -1,4 +1,5 @@
 const mat4 = glMatrix.mat4;
+const quat = glMatrix.quat;
 
 const objectTypes = {
     WATER: 'water',
@@ -76,7 +77,7 @@ export default class ObstacleHandler {
         return [x,y,z];
     }
 
-    updateSpikes(scene) {
+    updateObstacles(scene, ball, generator) {
 
         let properties;
         scene.nodes.forEach(node => {
@@ -97,16 +98,66 @@ export default class ObstacleHandler {
                 node.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
                 node.updateMatrix();
 
+            }  else if(node.name === 'hotdog') {
+                quat.rotateX(node.rotation, node.rotation, 0.04);
+                quat.rotateZ(node.rotation, node.rotation, 0.04);
+
+                if(node.bottomY === undefined) {
+                    node.bottomY = node.translation[1];
+                    node.topY = node.translation[1] + 1.3;
+                    node.direction = 'up';
+                }
+
+                if(node.translation[1] < node.topY && node.direction === 'up') {
+                    node.translation[1] += 0.02;
+                } else if(node.translation[1] >= node.topY && node.direction === 'up') {
+                    node.direction = 'down';
+                    node.translation[1] -= 0.02;
+                } else if(node.translation[1] > node.bottomY && node.direction === 'down') {
+                    node.translation[1] -= 0.02;
+                } else if(node.translation[1] <= node.bottomY && node.direction === 'down') {
+                    node.direction = 'up';
+                    node.translation[1] += 0.02;
+                }
+
+                if(this.near(node.translation, ball.translation)) {
+                  console.log("OMNOMNOM!");
+                  this.playSound('eat');
+                  ball.hp += 30;
+                  if(ball.hp > 100) {
+                      ball.hp = 100;
+                  }
+                  node.bottomY  = undefined;
+                  node.translation = generator.getHotDogLocation();
+                  $('.healthBarValue').animate({width: ball.hp.toString()+"%"}, 100);
+                }
+
+                node.updateMatrix();
             }
         });
 
+    }
+
+    playSound(id) {
+        const sound = document.getElementById(id);
+        sound.volume = 0.2;
+        sound.play();
+    }
+
+    near(a, b){
+        let out = false;
+        let d = 2;
+        if(Math.sqrt( Math.pow(a[0]- b[0],2) +  Math.pow(a[1]- b[1],2) + Math.pow(a[2]- b[2],2) ) < d) {
+           out = true;
+        }
+        return out;
     }
 
     generateSpikyBall(x,y,z) {
 
         return {
             type:'sphere',
-            size:[1.5],
+            size:[2],
             pos: [x, y, z],
             move: true, // dynamic or statique
             density: 1,

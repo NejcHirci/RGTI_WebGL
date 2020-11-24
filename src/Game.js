@@ -76,8 +76,9 @@ class App extends Application {
         this.initGltfScene = await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
         this.initScene = await new SceneLoader().loadScene(uri);
         this.skybox = new Skybox(this.initScene.textures);
-
+        document.getElementById('title').style.color = 'white';
         this.loadLevel();
+
     }
 
 
@@ -182,7 +183,7 @@ class App extends Application {
     }
 
     pointerlockchangeHandler() {
-        console.log(this.paused);
+
         if (!this.gameStart) this.gameStart = true;
 
         if (!this.camera) {
@@ -199,7 +200,9 @@ class App extends Application {
             this.paused = true;
             if (this.levelComplete) {
                 this.finishMenu();
-            } else {
+            } else if (this.ball.hp <= 0) {
+                this.handleDeath()
+            } else  {
                 this.enableMenu();
             }
         }
@@ -213,6 +216,12 @@ class App extends Application {
         this.startTime = this.time;
 
         if(this.world) {
+            if (this.ball.translation[1] <= -5) {
+                this.ball.hp = 0;
+                console.log("HP: " + this.ball.hp);
+                console.log("YOU DEAD!");
+                document.exitPointerLock();
+            }
             if(this.ball.worldProperties.numContacts > 0) {
                 if(this.ball.isInContactWith([objectTypes.SPIKY_BALL])) {
                     if (this.ball.damagedBySpike === undefined || this.ball.damagedBySpike === false) {
@@ -246,9 +255,12 @@ class App extends Application {
                     this.levelComplete = true;
                     document.exitPointerLock();
                 }
+
                 if (this.ball.hp <= 0) {
+                    this.ball.hp = 0;
                     console.log("HP: " + this.ball.hp);
                     console.log("YOU DEAD!");
+                    document.exitPointerLock();
                 }
             }
 
@@ -256,12 +268,22 @@ class App extends Application {
 
             let properties = this.ball.worldProperties;
 
-            this.ball.translation = [(properties.position.x), (properties.position.y), (properties.position.z)];
-            this.ball.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
-            this.ball.updateMatrix();
+
 
             // update obstacles
-            if (!this.paused) this.obstacleHandler.updateSpikes(this.gltfScene);
+            if (!this.paused) this.obstacleHandler.updateObstacles(this.gltfScene, this.ball, this.levelGenerator);
+
+            if(this.ball.hp <= 0 ) {
+               this.camera.rotation[1] += 0.01;
+               if (this.ball.translation[1] < 7) {
+                   this.ball.translation[1] += 0.01;
+               }
+               this.ball.updateMatrix();
+            } else {
+                this.ball.translation = [(properties.position.x), (properties.position.y), (properties.position.z)];
+                this.ball.rotation = [properties.orientation.x,properties.orientation.y,properties.orientation.z, properties.orientation.w];
+                this.ball.updateMatrix();
+            }
         }
 
         if (this.camera) {
@@ -291,20 +313,39 @@ class App extends Application {
 
     playSound(id) {
         const sound = document.getElementById(id);
+        if ( id ==='dead') {
+            sound.volume = 0.4;
+        } else if(id ==='theme') {
+            sound.volume = 0.4;
+        }
         sound.play();
+        if (id ==='dead') {
+            document.getElementById("theme").muted = true;
+        }
     }
 
     enableMenu() {
-        const oofSound = document.getElementById("oof");
-        oofSound.muted = true;
+        setTimeout(()=> {
+            const oofSound = document.getElementById("oof");
+            oofSound.muted = true;
+        }, 1000);
+
         document.getElementById("menu").style.display = "block";
         document.getElementById("game-ui").style.display = "none";
         $('#canvas').addClass('blur');
     }
 
     disableMenu() {
+
+        this.playSound('theme');
         const oofSound = document.getElementById("oof");
         oofSound.muted = false;
+
+        setTimeout(()=> {
+            const oofSound = document.getElementById("oof");
+            oofSound.muted = false;
+        }, 1000);
+
         if (!this.gameStart) {
             document.getElementById("title").innerText = "Paused";
             document.getElementById("button").innerText = "CONTINUE";
@@ -321,9 +362,9 @@ class App extends Application {
         this.scene = builder.build();
 
         this.gltfScene = this.initGltfScene.clone();
-
         this.levelGenerator.scene = this.scene;
         this.levelGenerator.next();
+
 
         // Find camera and goal
         this.camera = null;
@@ -336,8 +377,6 @@ class App extends Application {
         let gltfSceneFiltered = {
             nodes: []
         };
-
-        console.log(this.gltfScene);
 
         this.gltfScene.nodes.forEach(node => {
             if (node instanceof BallNode) {
@@ -354,8 +393,19 @@ class App extends Application {
                 let n;
                 for(let i = 1; i < 250; i++) {
                     n = new GLTFNode(node);
+                    n.scale = [2,2,2];
+                    n.updateMatrix();
                     gltfSceneFiltered.nodes.push(n);
                 }
+            } else if (node.name === 'hotdog') {
+                let n;
+                for(let i = 1; i < 4; i++) {
+                    n = new GLTFNode(node);
+                    n.translation = this.levelGenerator.getHotDogLocation();
+                    n.updateMatrix();
+                    gltfSceneFiltered.nodes.push(n);
+                }
+
             }
         });
 
@@ -415,6 +465,19 @@ class App extends Application {
 
         document.getElementById("menu").style.display = "block";
         document.getElementById("game-ui").style.display = "none";
+    }
+
+    handleDeath() {
+
+        document.getElementById("title").innerText = "YOU DIED";
+        document.getElementById("title").style.color = "black";
+        this.enableMenu();
+        document.getElementById("button").style.display = "none";
+
+
+
+        this.playSound('dead');
+
     }
 
 }

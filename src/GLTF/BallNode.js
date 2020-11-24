@@ -125,14 +125,19 @@ export default class BallNode extends GLTFNode {
         }
 
         // 2: update velocity
-        vec3.scaleAndAdd(linearVelocity , linearVelocity , acc, dt * this.acceleration * 0.5);
+
 
         if (this.worldProperties.numContacts > 0 && this.isInContactWith([objectTypes.WATER, objectTypes.LAND])) {
-            // ce je igralec stisnil kaksen gumb spremeni hitrost zoge
-            this.worldProperties.linearVelocity.x = linearVelocity[0];
-            this.worldProperties.linearVelocity.y = linearVelocity[1];
-            this.worldProperties.linearVelocity.z = linearVelocity[2];
+            vec3.scaleAndAdd(linearVelocity , linearVelocity , acc, dt * this.acceleration * 0.5);
+        } else {
+            vec3.scaleAndAdd(linearVelocity , linearVelocity , acc, dt * this.inAirAcc * 0.5);
         }
+
+
+        // ce je igralec stisnil kaksen gumb spremeni hitrost zoge
+        this.worldProperties.linearVelocity.x = linearVelocity[0];
+        this.worldProperties.linearVelocity.y = linearVelocity[1];
+        this.worldProperties.linearVelocity.z = linearVelocity[2];
 
     }
 
@@ -147,7 +152,8 @@ export default class BallNode extends GLTFNode {
 
 BallNode.defaults = {
     velocity         : [0, 0, 0],
-    acceleration     : 40,
-    jumpAcceleration : 20,
-    waterAcc: 20
+    acceleration     : 50,
+    jumpAcceleration : 25,
+    waterAcc: 20,
+    inAirAcc: 10
 };

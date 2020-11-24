@@ -12,6 +12,7 @@ export default class LevelGenerator {
         this.seed = seed;
         this.scene = scene;
         this.mesh = [];
+        this.possibleHotDogLocations = [];
 
         this.colorSchemes = [
             {
@@ -46,6 +47,8 @@ export default class LevelGenerator {
 
         //(2) Set Start and Goal position and add Goal object
         this.createStartAndGoal();
+
+        this.generateHotDogLocations();
 
         //(3) Add static obstacles
         //this.createObstacles()
@@ -119,5 +122,26 @@ export default class LevelGenerator {
                 break;
             }
         }
+    }
+
+    generateHotDogLocations() {
+        //First get positions
+        const map = this.levelNode.mesh.vertices;
+        let x, y, z
+
+        for (let i = 0; i < map.length - 3; i += 15) {
+            x = map[i];
+            y = map[i + 1];
+            z = map[i + 2];
+            if (y > 2) {
+                this.possibleHotDogLocations.push([x, y + 1.2, z]);
+            }
+        }
+
+    }
+
+    getHotDogLocation() {
+        let length = this.possibleHotDogLocations.length;
+        return this.possibleHotDogLocations[Math.floor(Math.random() * length)];
     }
 }
