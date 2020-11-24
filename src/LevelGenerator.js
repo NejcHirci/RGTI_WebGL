@@ -56,7 +56,7 @@ export default class LevelGenerator {
 
     createIsland() {
         this.setColorScheme();
-        let heightMap = this.terrainGen.generateNoiseMap(this.seed++);
+        let heightMap = this.terrainGen.generateNoiseMap(this.seed = Math.floor(Math.random() * 3000));
         let tex = this.terrainGen.generateTexture(heightMap);
         let mesh = this.terrainGen.generateMesh(heightMap);
 
@@ -125,6 +125,8 @@ export default class LevelGenerator {
     }
 
     generateHotDogLocations() {
+
+        this.possibleHotDogLocations = [];
         //First get positions
         const map = this.levelNode.mesh.vertices;
         let x, y, z
@@ -137,6 +139,8 @@ export default class LevelGenerator {
                 this.possibleHotDogLocations.push([x, y + 1.2, z]);
             }
         }
+        console.log("HOTDOGS:");
+        console.log(this.possibleHotDogLocations);
 
     }
 

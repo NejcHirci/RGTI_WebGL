@@ -62,7 +62,7 @@ class App extends Application {
         this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock  || this.canvas.webkitRequestPointerLock;
         this.canvas.addEventListener('click', () => this.canvas.requestPointerLock());
 
-        this.levelGenerator = new LevelGenerator(23, null);
+        this.levelGenerator = new LevelGenerator(Math.floor(Math.random() * 3000), null);
 
         this.load('./src/scene.json');
     }
