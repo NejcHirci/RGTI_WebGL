@@ -83,7 +83,7 @@ export default class Camera extends Node {
         const dx = e.movementX;
         const dy = e.movementY;
 
-        this.rotation[0] -= dy * this.mouseSensitivity;
+        this.rotation[0] += dy * this.mouseSensitivity;
         this.rotation[1] -= dx * this.mouseSensitivity;
 
         const pi = Math.PI;
