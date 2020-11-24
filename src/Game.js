@@ -316,7 +316,7 @@ class App extends Application {
         if ( id ==='dead') {
             sound.volume = 0.4;
         } else if(id ==='theme') {
-            sound.volume = 0.4;
+            sound.volume = 0.2;
         }
         sound.play();
         if (id ==='dead') {
