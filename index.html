@@ -27,6 +27,12 @@
     </div>
     <div class="menu" id="menu">
       <div class="title" id="title">Balls to The Holes</div>
+
+      <div id="toggleBalls" class="slider" style=" position:absolute; left: 0px; top:50%; ">
+        <p class="uiElement" id = "num" >Number of balls: 250 </p>
+        <input id = "numBalls" style="width: 440px;"  type="range" min="50" max="300" value="250">
+      </div>
+
       <div class="buttons">
         <button type="button" class="btn" id="reloadButton" style="float:left; display: none" onclick="location.reload()">RELOAD</button>
         <button type="button" class="btn" id="button" disabled>START</button>
@@ -39,6 +45,6 @@
 <audio id="oof"><source src="./static/sounds/oof.mp3" /></audio>
 <audio id="eat"><source src="./static/sounds/eat.mp3" /></audio>
 <audio id="dead"><source src="./static/sounds/died.mp3" /></audio>
-<audio id="theme"><source src="./static/sounds/theme.mp3" /></audio>
+<audio id="theme"><source src="./static/sounds/theme2.mp3" /></audio>
 </body>
 </html>

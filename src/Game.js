@@ -47,6 +47,7 @@ class App extends Application {
         this.dead = false;
         this.paused = true;
         this.gameStart = false;
+        this.numSpikes = 250;
 
         this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
         document.addEventListener('pointerlockchange', this.pointerlockchangeHandler);
@@ -76,7 +77,7 @@ class App extends Application {
         this.initGltfScene = await this.gltfLoader.loadScene(this.gltfLoader.defaultScene);
         this.initScene = await new SceneLoader().loadScene(uri);
         this.skybox = new Skybox(this.initScene.textures);
-        document.getElementById('title').style.color = 'white';
+
         this.loadLevel();
 
     }
@@ -316,7 +317,7 @@ class App extends Application {
         if ( id ==='dead') {
             sound.volume = 0.4;
         } else if(id ==='theme') {
-            sound.volume = 0.2;
+            sound.volume = 0.7;
         }
         sound.play();
         if (id ==='dead') {
@@ -350,7 +351,9 @@ class App extends Application {
             document.getElementById("title").innerText = "Paused";
             document.getElementById("button").innerText = "CONTINUE";
             document.getElementById("reloadButton").style.display = "block";
+            document.getElementById("toggleBalls").hidden = true;
         }
+
         document.getElementById("menu").style.display = "none";
         document.getElementById("game-ui").style.display = "block";
         $('#canvas').removeClass('blur');
@@ -391,7 +394,71 @@ class App extends Application {
                 gltfSceneFiltered.nodes.push(node);
             } else if (node.name === 'spikey') {
                 let n;
-                for(let i = 1; i < 250; i++) {
+                for(let i = 1; i < this.numSpikes; i++) {
+                    n = new GLTFNode(node);
+                    n.scale = [2,2,2];
+                    n.updateMatrix();
+                    gltfSceneFiltered.nodes.push(n);
+                }
+            } else if (node.name === 'hotdog') {
+                let n;
+                for(let i = 1; i < 4; i++) {
+                    n = new GLTFNode(node);
+                    n.translation = this.levelGenerator.getHotDogLocation();
+                    n.updateMatrix();
+                    gltfSceneFiltered.nodes.push(n);
+                }
+
+            }
+        });
+
+        const obstacleHandlerOptions = {
+            mapSize: this.levelGenerator.terrainGen.mapSize
+        }
+
+        this.obstacleHandler = new ObstacleHandler(obstacleHandlerOptions);
+
+        this.camera.aspect = this.aspect;
+        this.camera.updateProjection();
+
+        this.renderer.prepare(this.scene, this.gltfScene, this.skybox);
+        this.gltfScene = gltfSceneFiltered;
+
+        this.initPhysics();
+
+        document.getElementById("button").disabled = false;
+    }
+
+    reloadLevel() {
+
+        this.gltfScene = this.initGltfScene.clone();
+
+        // Find camera and goal
+        this.camera = null;
+        this.scene.traverse(node => {
+            if (node instanceof Camera) {
+                this.camera = new Camera(node);
+            }
+        });
+
+        let gltfSceneFiltered = {
+            nodes: []
+        };
+
+        this.gltfScene.nodes.forEach(node => {
+            if (node instanceof BallNode) {
+                this.ball = new BallNode();
+                this.ball = node;
+                this.ball.addChild(this.camera);
+                this.ball.translation = this.levelGenerator.startPos;
+                gltfSceneFiltered.nodes.push(node);
+            } else if (node.name === 'pipe')  {
+                node.translation = this.levelGenerator.endPos;
+                node.updateMatrix();
+                gltfSceneFiltered.nodes.push(node);
+            } else if (node.name === 'spikey') {
+                let n;
+                for(let i = 1; i < this.numSpikes; i++) {
                     n = new GLTFNode(node);
                     n.scale = [2,2,2];
                     n.updateMatrix();
@@ -462,6 +529,7 @@ class App extends Application {
         document.getElementById("button").innerText = "START";
 
         document.getElementById("nextButton").style.display = "none";
+        document.getElementById("toggleBalls").hidden = false;
 
         document.getElementById("menu").style.display = "block";
         document.getElementById("game-ui").style.display = "none";
@@ -485,7 +553,6 @@ class App extends Application {
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('canvas');
     const app = new App(canvas);
-
     const button = document.getElementById("button");
     button.addEventListener('click', () => {
         app.disableMenu();
@@ -495,4 +562,21 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.addEventListener('click', () => {
         app.nextLevel()
     })
+
+    const slider = document.getElementById("numBalls");
+
+    slider.oninput = function() {
+        const num = document.getElementById("num");
+        num.innerHTML = `Number of balls: ${this.value}`;
+        app.numSpikes = this.value;
+        const val = this.value;
+
+        setTimeout(() => {
+          if (app.numSpikes === val) {
+              app.reloadLevel();
+          }
+        }, 100);
+
+    }
+
 });
