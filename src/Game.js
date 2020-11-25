@@ -318,9 +318,19 @@ class App extends Application {
             sound.volume = 0.4;
         } else if(id ==='theme') {
             sound.volume = 0.7;
+            if(sound.muted) {
+                sound.currentTime = 0;
+                sound.muted = false;
+            }
+
+        } else if(id ==='pass') {
+
+            sound.volume = 0.5;
         }
+
         sound.play();
-        if (id ==='dead') {
+
+        if (id ==='dead' || id === 'pass') {
             document.getElementById("theme").muted = true;
         }
     }
@@ -501,7 +511,11 @@ class App extends Application {
         const oofSound = document.getElementById("oof");
         oofSound.muted = true;
 
-        document.getElementById("title").innerText = "Proceed to next island";
+        this.playSound('pass');
+        this.replay = true;
+
+
+        document.getElementById("title").innerText = "MISSION PASSED RESPECT +";
         document.getElementById("button").style.display = "none";
 
         document.getElementById("nextButton").style.display = "block";
@@ -524,6 +538,7 @@ class App extends Application {
         this.camera = null;
         this.loadLevel();
 
+
         document.getElementById("title").innerText = "Start next level";
         document.getElementById("button").style.display = "block";
         document.getElementById("button").innerText = "START";
@@ -533,6 +548,7 @@ class App extends Application {
 
         document.getElementById("menu").style.display = "block";
         document.getElementById("game-ui").style.display = "none";
+
     }
 
     handleDeath() {
