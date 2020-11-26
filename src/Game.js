@@ -153,8 +153,8 @@ class App extends Application {
 
         if (this.levelGenerator.endPos) {
             this.world.add({
-                type: 'sphere',
-                size: [2],
+                type: 'box',
+                size: [3,6,3],
                 pos: this.levelGenerator.endPos,
                 move: false,
                 name: objectTypes.GOAL
@@ -347,7 +347,7 @@ class App extends Application {
     }
 
     disableMenu() {
-
+        document.getElementById("theme").muted = false;
         this.playSound('theme');
         const oofSound = document.getElementById("oof");
         oofSound.muted = false;
@@ -538,7 +538,7 @@ class App extends Application {
         this.camera = null;
         this.loadLevel();
 
-
+        document.getElementById("theme").currentTime = 0;
         document.getElementById("title").innerText = "Start next level";
         document.getElementById("button").style.display = "block";
         document.getElementById("button").innerText = "START";

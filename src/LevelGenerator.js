@@ -8,7 +8,7 @@ export default class LevelGenerator {
 
     constructor(seed, scene) {
         this.level = 0;
-        this.terrainGen = new TerrainGenerator(241, 50, 5, 0.2, 2, 18);
+        this.terrainGen = new TerrainGenerator(241, 55, 5, 0.3, 2, 20);
         this.seed = seed;
         this.scene = scene;
         this.mesh = [];
