@@ -515,7 +515,7 @@ class App extends Application {
         this.replay = true;
 
 
-        document.getElementById("title").innerText = "MISSION PASSED RESPECT +";
+        document.getElementById("title").innerText = "LEVEL COMPLETE";
         document.getElementById("button").style.display = "none";
 
         document.getElementById("nextButton").style.display = "block";
